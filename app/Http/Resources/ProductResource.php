@@ -20,7 +20,7 @@ class ProductResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'price' => (float) $this->price,
+            'price' => $this->price,
             'stock' => $this->stock,
             'is_active' => $this->is_active,
             // Loads category details only when requested/loaded

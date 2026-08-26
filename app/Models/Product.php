@@ -21,6 +21,15 @@ class Product extends Model
         'category_id',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'stock' => 'integer',
+            'is_active' => 'boolean',
+        ];
+    }
+
     /**
      * The category that the product belongs to.
      */

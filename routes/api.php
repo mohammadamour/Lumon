@@ -23,7 +23,8 @@ Route::get('/ping', function () {
 
 // Public Catalog Routes
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
-Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{product:slug}', [ProductController::class, 'show']);
 
 // Public Auth Routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -64,4 +65,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/checkout', [OrderController::class, 'store']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
+});
+
+
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Product Admin Endpoints ...
+
+    // Admin Order Management
+    Route::get('/admin/orders', [OrderController::class, 'adminIndex']);
+    Route::patch('/admin/orders/{order}/status', [OrderController::class, 'updateStatus']);
 });

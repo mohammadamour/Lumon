@@ -7,6 +7,7 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -79,4 +80,29 @@ class OrderController extends Controller
             return new OrderResource($order->load('items.product'));
         });
     }
+
+
+
+
+    // Admin: View all orders across all users
+            public function adminIndex(Request $request)
+            {
+            $orders = Order::with(['user', 'items.product'])->latest()->paginate(15);
+
+            return OrderResource::collection($orders);
+            }
+
+            // Admin: Update order status
+            public function updateStatus(Request $request, Order $order)
+            {
+                $validated = $request->validate([
+                    'status' => ['required', Rule::in(['pending', 'processing', 'completed', 'cancelled'])],
+            ]);
+
+            $order->update([
+            'status' => $validated['status'],
+            ]);
+
+        return new OrderResource($order->load('items.product'));
+}
 }
