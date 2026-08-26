@@ -37,22 +37,39 @@ class OrderController extends Controller
         ]);
 
         $user = $request->user();
-        $cart = $user->cart()->with('items.product')->first();
-
-        if (! $cart || $cart->items->isEmpty()) {
-            return response()->json(['message' => 'Your cart is empty.'], 400);
-        }
 
         // Wrap checkout operations in a database transaction
-        return DB::transaction(function () use ($user, $cart, $validated) {
-            // Calculate grand total and verify stock
+        return DB::transaction(function () use ($user, $validated) {
+            $cart = $user->cart()->lockForUpdate()->first();
+
+            if (! $cart) {
+                return response()->json(['message' => 'Your cart is empty.'], 400);
+            }
+
+            $cartItems = $cart->items()
+                ->orderBy('product_id')
+                ->lockForUpdate()
+                ->get();
+
+            if ($cartItems->isEmpty()) {
+                return response()->json(['message' => 'Your cart is empty.'], 400);
+            }
+
+            $products = collect();
             $totalAmount = 0;
 
-            foreach ($cart->items as $item) {
-                if ($item->product->stock < $item->quantity) {
-                    throw new \Exception("Product {$item->product->name} does not have enough stock.");
+            foreach ($cartItems as $item) {
+                $product = $item->product()
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $products->put($item->id, $product);
+
+                if ($product->stock < $item->quantity) {
+                    throw new \Exception("Product {$product->name} does not have enough stock.");
                 }
-                $totalAmount += $item->product->price * $item->quantity;
+
+                $totalAmount += $product->price * $item->quantity;
             }
 
             // 1. Create the Order
@@ -63,15 +80,17 @@ class OrderController extends Controller
             ]);
 
             // 2. Create Order Items & Deduct Stock
-            foreach ($cart->items as $item) {
+            foreach ($cartItems as $item) {
+                $product = $products->get($item->id);
+
                 $order->items()->create([
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
-                    'price' => $item->product->price,
+                    'price' => $product->price,
                 ]);
 
                 // Decrement inventory stock
-                $item->product->decrement('stock', $item->quantity);
+                $product->decrement('stock', $item->quantity);
             }
 
             // 3. Clear the Cart

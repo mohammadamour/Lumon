@@ -16,6 +16,10 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
-        return new CategoryResource($category->load('products'));
+        return new CategoryResource($category->load([
+            'products' => function ($query) {
+                $query->where('is_active', true);
+            },
+        ]));
     }
 }

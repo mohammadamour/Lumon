@@ -67,6 +67,8 @@ public function update(Request $request, Product $product)
 
         $validated = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'category' => ['nullable', 'string', 'max:255', 'exists:categories,slug'],
             'min_price' => [
                 'nullable',
                 'numeric',
@@ -91,6 +93,16 @@ public function update(Request $request, Product $product)
         $query->where(function ($q) use ($searchTerm) {
             $q->where('name', 'like', '%' . $searchTerm . '%')
               ->orWhere('description', 'like', '%' . $searchTerm . '%');
+        });
+    }
+
+    if (isset($validated['category_id'])) {
+        $query->where('category_id', $validated['category_id']);
+    }
+
+    if (! empty($validated['category'])) {
+        $query->whereHas('category', function ($categoryQuery) use ($validated) {
+            $categoryQuery->where('slug', $validated['category']);
         });
     }
 
