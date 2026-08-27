@@ -4,8 +4,8 @@ namespace Database\Factories;
 
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use illuminate\Support\Str;
-use app\Models\Category;
+use Illuminate\Support\Str;
+use App\Models\Category;
 
 /**
  * @extends Factory<Product>
