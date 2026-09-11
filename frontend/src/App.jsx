@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import useAuthStore from './store/useAuthStore';
 
-// Placeholder Pages
-const Home = () => <div className="text-center py-20"><h1 className="text-4xl font-bold text-slate-900 mb-4">Welcome to BagistoClone</h1><p className="text-lg text-slate-600">Discover premium products at unbeatable prices.</p></div>;
+import Home from './pages/Home';
+
 const Shop = () => <div className="text-2xl font-semibold">Shop Page (Coming Soon)</div>;
 const Login = () => <div className="text-2xl font-semibold">Login Page (Coming Soon)</div>;
 const Register = () => <div className="text-2xl font-semibold">Register Page (Coming Soon)</div>;
