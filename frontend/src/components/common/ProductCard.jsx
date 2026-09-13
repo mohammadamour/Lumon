@@ -37,20 +37,20 @@ export default function ProductCard({ product = {} }) {
       </div>
 
       {/* ── Info ── */}
-      <div className="flex flex-col gap-1 pt-3 pb-1 px-1">
+      <div className="flex flex-col gap-1.5 pt-4 pb-2 px-2 sm:gap-1 sm:pt-3 sm:pb-1 sm:px-1">
         {/* Seller name */}
-        <p className="text-caption text-muted truncate">{sellerName}</p>
+        <p className="text-sm text-muted truncate sm:text-caption">{sellerName}</p>
 
         {/* Product title */}
-        <h3 className="text-body font-bold text-dark truncate">{name}</h3>
+        <h3 className="text-base font-bold text-dark truncate sm:text-body">{name}</h3>
 
         {/* Price + Rating on same line */}
         <div className="flex items-center justify-between">
-          <span className="text-body font-bold text-dark">
+          <span className="text-lg font-bold text-dark sm:text-body">
             ${price}
           </span>
-          <span className="flex items-center gap-1 text-caption text-muted">
-            <Star size={12} className="fill-warning text-warning" strokeWidth={0} />
+          <span className="flex items-center gap-1 text-sm text-muted sm:text-caption">
+            <Star size={14} className="fill-warning text-warning sm:h-3 sm:w-3" strokeWidth={0} />
             {rating.toFixed(1)}
           </span>
         </div>
