@@ -1,37 +1,60 @@
+import { Link } from 'react-router-dom';
+import { Star } from 'lucide-react';
+
 /**
- * ProductCard — displays a single product (Phase 2)
+ * ProductCard — reusable product card used in FeaturedProducts (home) and Shop page.
  *
- * Will be rebuilt with real data in Phase 2.
- * Simplified design: no color swatches, single price.
+ * Props:
+ *   product: {
+ *     id, name, price, rating, sellerName, image, slug
+ *   }
+ *
+ * All fields fall back to static placeholders until the backend is seeded.
  */
-export default function ProductCard({ product }) {
+export default function ProductCard({ product = {} }) {
+  const {
+    id = 1,
+    name = 'Classic Comfort Tee',
+    price = '29.99',
+    rating = 4.8,
+    sellerName = 'Lumon Store',
+    image = '/category-men.png',
+    slug = '#',
+  } = product;
+
   return (
-    <div className="group overflow-hidden rounded-2xl bg-white shadow-card transition-all hover:shadow-card-lg">
-      {/* Image */}
-      <div className="aspect-[4/3] overflow-hidden bg-light-100">
-        {product?.image ? (
-          <img
-            src={product.image}
-            alt={product.name || 'Product'}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-muted-light">
-            No Image
-          </div>
-        )}
+    <Link
+      to={`/products/${slug}`}
+      className="group flex flex-col overflow-hidden bg-white transition-shadow hover:shadow-card-lg"
+    >
+      {/* ── Image ── */}
+      <div className="relative aspect-[3/4] overflow-hidden bg-light-100">
+        <img
+          src={image}
+          alt={name}
+          className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
+        />
       </div>
 
-      {/* Info */}
-      <div className="p-4">
-        <h3 className="text-h4 text-dark truncate">{product?.name || 'Product Name'}</h3>
-        <p className="mt-1 text-body text-muted line-clamp-2">
-          {product?.description || 'Product description goes here.'}
-        </p>
-        <p className="mt-3 text-h4 font-bold text-primary">
-          ${product?.price || '0.00'}
-        </p>
+      {/* ── Info ── */}
+      <div className="flex flex-col gap-1 pt-3 pb-1 px-1">
+        {/* Seller name */}
+        <p className="text-caption text-muted truncate">{sellerName}</p>
+
+        {/* Product title */}
+        <h3 className="text-body font-bold text-dark truncate">{name}</h3>
+
+        {/* Price + Rating on same line */}
+        <div className="flex items-center justify-between">
+          <span className="text-body font-bold text-dark">
+            ${price}
+          </span>
+          <span className="flex items-center gap-1 text-caption text-muted">
+            <Star size={12} className="fill-warning text-warning" strokeWidth={0} />
+            {rating.toFixed(1)}
+          </span>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
