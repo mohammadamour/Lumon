@@ -1,17 +1,10 @@
+import HeroSlider from '../components/home/HeroSlider';
+
 export default function Home() {
   return (
     <>
-      {/* Hero section placeholder — Phase 2 */}
-      <section className="bg-gradient-to-br from-primary-50 via-white to-light py-20">
-        <div className="container-main text-center">
-          <h1 className="text-display text-dark">
-            Discover Quality Products
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-body-lg text-muted">
-            Browse curated items from independent sellers. Shop smart, support local.
-          </p>
-        </div>
-      </section>
+      <HeroSlider />
+
 
       {/* Featured Products — anchor target */}
       <section id="featured" className="bg-white py-16">
