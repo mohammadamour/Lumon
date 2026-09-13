@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
+import Layout from './components/layout/Layout';
 import useAuthStore from './store/useAuthStore';
 
 import Home from './pages/Home';
 
-const Shop = () => <div className="text-2xl font-semibold">Shop Page (Coming Soon)</div>;
-const Login = () => <div className="text-2xl font-semibold">Login Page (Coming Soon)</div>;
-const Register = () => <div className="text-2xl font-semibold">Register Page (Coming Soon)</div>;
-const Cart = () => <div className="text-2xl font-semibold">Cart (Coming Soon)</div>;
+// Placeholder pages — will be built in later phases
+const Shop     = () => <div className="container-main py-16 text-h3 text-dark">Shop — Coming Soon</div>;
+const Login    = () => <div className="container-main py-16 text-h3 text-dark">Login — Coming Soon</div>;
+const Register = () => <div className="container-main py-16 text-h3 text-dark">Register — Coming Soon</div>;
+const Cart     = () => <div className="container-main py-16 text-h3 text-dark">Cart — Coming Soon</div>;
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);

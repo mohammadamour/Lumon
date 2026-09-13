@@ -3,7 +3,22 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-light text-dark font-sans antialiased;
+  }
+
+  /* Smooth anchor offset for fixed navbar */
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+}
+
+@layer components {
+  .container-main {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 }
