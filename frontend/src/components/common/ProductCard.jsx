@@ -28,7 +28,7 @@ export default function ProductCard({ product = {} }) {
       className="group flex flex-col overflow-hidden bg-white transition-shadow hover:shadow-card-lg"
     >
       {/* ── Image ── */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-light-100">
+      <div className="relative aspect-[4/5] overflow-hidden bg-light-100">
         <img
           src={image}
           alt={name}
