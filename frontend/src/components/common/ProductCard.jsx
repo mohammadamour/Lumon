@@ -25,7 +25,7 @@ export default function ProductCard({ product = {} }) {
   return (
     <Link
       to={`/products/${slug}`}
-      className="group flex flex-col overflow-hidden bg-white transition-shadow hover:shadow-card-lg"
+      className="group flex flex-col overflow-hidden bg-white"
     >
       {/* ── Image ── */}
       <div className="relative aspect-[4/5] overflow-hidden bg-light-100">

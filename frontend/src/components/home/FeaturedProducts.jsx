@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import ProductCard from '../common/ProductCard';
 
 // 4 category images, each used twice across 8 cards
@@ -51,6 +52,16 @@ export default function FeaturedProducts() {
           {row2.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
+        </div>
+
+        {/* ── Browse More Button ── */}
+        <div className="mt-14 text-center">
+          <Link
+            to="/products"
+            className="inline-block rounded border-2 border-primary bg-primary px-8 py-3 font-bold text-white transition-colors hover:bg-white hover:text-primary uppercase tracking-wide"
+          >
+            Browse More
+          </Link>
         </div>
 
       </div>
