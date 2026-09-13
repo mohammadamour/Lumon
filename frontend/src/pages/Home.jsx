@@ -1,10 +1,11 @@
 import HeroSlider from '../components/home/HeroSlider';
+import EditorsPick from '../components/home/EditorsPick';
 
 export default function Home() {
   return (
     <>
       <HeroSlider />
-
+      <EditorsPick />
 
       {/* Featured Products — anchor target */}
       <section id="featured" className="bg-white py-16">
