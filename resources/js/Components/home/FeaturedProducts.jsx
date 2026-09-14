@@ -21,8 +21,6 @@ const PLACEHOLDER_PRODUCTS = [
 ];
 
 export default function FeaturedProducts() {
-  const row1 = PLACEHOLDER_PRODUCTS.slice(0, 4);
-  const row2 = PLACEHOLDER_PRODUCTS.slice(4, 8);
 
   return (
     <section id="featured" className="bg-white py-16">
@@ -37,25 +35,15 @@ export default function FeaturedProducts() {
           </p>
         </div>
 
-        {/* ── Row 1 ── */}
-        <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {row1.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        {/* ── Row gap ── */}
-        <div className="mt-10" />
-
-        {/* ── Row 2 ── */}
-        <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {row2.map((product) => (
+        {/* ── Product Grid ── */}
+        <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+          {PLACEHOLDER_PRODUCTS.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
 
         {/* ── Browse More Button ── */}
-        <div className="mt-14 text-center">
+        <div className="mt-16 text-center">
           <Link
             href="/products"
             className="inline-block rounded border-2 border-primary bg-primary px-8 py-3 font-bold text-white transition-colors hover:bg-white hover:text-primary uppercase tracking-wide"
