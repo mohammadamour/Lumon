@@ -11,7 +11,7 @@ import axios from '../../lib/axios';
  *   removeParam — function to remove a single param
  *   clearAll — function to clear all filters
  */
-export default function FilterSidebar({ params, setParam, removeParam, clearAll }) {
+export default function FilterSidebar({ params, setParam, removeParam, clearAll, layout = 'both' }) {
   const [categories, setCategories] = useState([]);
   const [minPrice, setMinPrice] = useState(params.min_price || '');
   const [maxPrice, setMaxPrice] = useState(params.max_price || '');
@@ -143,48 +143,54 @@ export default function FilterSidebar({ params, setParam, removeParam, clearAll 
 
   return (
     <>
-      {/* ── Mobile Toggle ── */}
-      <button
-        onClick={() => setMobileOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-body font-semibold text-dark shadow-card transition-all hover:shadow-card-lg lg:hidden"
-      >
-        <SlidersHorizontal size={16} />
-        Filters
-        {hasAnyFilter && (
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-            !
-          </span>
-        )}
-      </button>
+      {(layout === 'mobile' || layout === 'both') && (
+        <>
+          {/* ── Mobile Toggle ── */}
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-body font-semibold text-dark shadow-card transition-all hover:shadow-card-lg lg:hidden"
+          >
+            <SlidersHorizontal size={16} />
+            Filters
+            {hasAnyFilter && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                !
+              </span>
+            )}
+          </button>
 
-      {/* ── Mobile Drawer ── */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-card-lg animate-slide-down overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-light-200 px-5 py-4">
-              <h2 className="text-h4 text-dark">Filters</h2>
-              <button
+          {/* ── Mobile Drawer ── */}
+          {mobileOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden">
+              <div
+                className="absolute inset-0 bg-black/30 backdrop-blur-sm"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg p-1.5 text-muted hover:bg-light-100"
-              >
-                <X size={20} />
-              </button>
+              />
+              <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-card-lg animate-slide-down overflow-y-auto">
+                <div className="flex items-center justify-between border-b border-light-200 px-5 py-4">
+                  <h2 className="text-h4 text-dark">Filters</h2>
+                  <button
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-lg p-1.5 text-muted hover:bg-light-100"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="p-5">{filterContent}</div>
+              </div>
             </div>
-            <div className="p-5">{filterContent}</div>
-          </div>
-        </div>
+          )}
+        </>
       )}
 
-      {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:block w-60 shrink-0">
-        <div className="sticky top-20 rounded-2xl border border-gray-100 bg-white p-5 shadow-card">
-          {filterContent}
-        </div>
-      </aside>
+      {(layout === 'desktop' || layout === 'both') && (
+        /* ── Desktop Sidebar ── */
+        <aside className="hidden lg:block w-60 shrink-0">
+          <div className="sticky top-20 rounded-2xl border border-gray-100 bg-white p-5 shadow-card">
+            {filterContent}
+          </div>
+        </aside>
+      )}
     </>
   );
 }

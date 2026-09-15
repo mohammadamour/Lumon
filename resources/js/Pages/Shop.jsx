@@ -71,7 +71,7 @@ export default function Shop() {
       <section className="bg-light min-h-screen">
         {/* ── Header ── */}
         <div className="bg-white border-b border-light-200">
-          <div className="container-main py-8">
+          <div className="container-main py-6">
             <h1 className="text-h2 text-dark mb-2">Shop</h1>
             <p className="text-body-lg text-muted">
               {loading
@@ -113,6 +113,7 @@ export default function Shop() {
               setParam={setParam}
               removeParam={removeParam}
               clearAll={clearAll}
+              layout="mobile"
             />
             <div className="flex-1" />
             <SortDropdown params={params} setParam={setParam} />
@@ -132,6 +133,7 @@ export default function Shop() {
               setParam={setParam}
               removeParam={removeParam}
               clearAll={clearAll}
+              layout="desktop"
             />
 
             {/* Product Grid */}
