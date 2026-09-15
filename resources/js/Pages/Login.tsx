@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import Layout from '../Components/layout/Layout';
@@ -6,21 +6,21 @@ import { Mail, Lock, Eye, EyeOff, ShoppingBag, Store, Sparkles } from 'lucide-re
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(null);
+  const [demoLoading, setDemoLoading] = useState<string | null>(null);
 
   const { data, setData, post, processing, errors, reset } = useForm({
     email: '',
     password: '',
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     post('/login', {
       onFinish: () => reset('password'),
     });
   };
 
-  const handleDemoLogin = (role) => {
+  const handleDemoLogin = (role: string) => {
     setDemoLoading(role);
     router.post('/demo-login', { role }, {
       onFinish: () => setDemoLoading(null),

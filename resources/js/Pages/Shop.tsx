@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, FormEvent } from 'react';
 import { Search, Package } from 'lucide-react';
 import Layout from '../Components/layout/Layout';
 import ProductCard from '../Components/common/ProductCard';
@@ -9,14 +9,15 @@ import ActiveFilterChips from '../Components/shop/ActiveFilterChips';
 import Pagination from '../Components/shop/Pagination';
 import useQueryParams from '../hooks/useQueryParams';
 import axios from '../lib/axios';
+import { Product, Pagination as PaginationType } from '@/types';
 
 export default function Shop() {
   const { params, setParam, removeParam, clearAll } = useQueryParams();
-  const [products, setProducts] = useState([]);
-  const [meta, setMeta] = useState(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [meta, setMeta] = useState<PaginationType<Product> | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState(params.search || '');
-  const abortRef = useRef(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   // Fetch products whenever params change
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function Shop() {
     setSearchInput(params.search || '');
   }, [params.search]);
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     if (searchInput.trim()) {
       setParam('search', searchInput.trim());

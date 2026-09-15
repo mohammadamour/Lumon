@@ -37,7 +37,7 @@ export default function TestimonialSection() {
   }, []);
 
   // Helper to render half and full stars
-  const renderStars = (rating) => {
+  const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       if (rating >= i) {

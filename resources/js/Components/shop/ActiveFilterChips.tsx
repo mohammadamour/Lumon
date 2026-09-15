@@ -1,9 +1,12 @@
 import { X } from 'lucide-react';
 
-/**
- * ActiveFilterChips — shows currently active filters as removable pills.
- */
-export default function ActiveFilterChips({ params, removeParam, clearAll }) {
+interface ActiveFilterChipsProps {
+  params: Record<string, string>;
+  removeParam: (key: string) => void;
+  clearAll: () => void;
+}
+
+export default function ActiveFilterChips({ params, removeParam, clearAll }: ActiveFilterChipsProps) {
   const chips = [];
 
   if (params.search) {
@@ -18,7 +21,7 @@ export default function ActiveFilterChips({ params, removeParam, clearAll }) {
       key: 'category',
       label: params.category
         .split('-')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' '),
     });
   }

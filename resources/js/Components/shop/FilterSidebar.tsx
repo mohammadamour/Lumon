@@ -2,17 +2,26 @@ import { useState, useEffect } from 'react';
 import { SlidersHorizontal, X } from 'lucide-react';
 import axios from '../../lib/axios';
 
+interface Category {
+  id: number;
+  slug: string;
+  name: string;
+  product_count?: number;
+}
+
+interface FilterSidebarProps {
+  params: Record<string, string>;
+  setParam: (key: string, value: string) => void;
+  removeParam: (key: string) => void;
+  clearAll: () => void;
+  layout?: 'mobile' | 'desktop' | 'both';
+}
+
 /**
  * FilterSidebar — category + price range filters for the Shop page.
- *
- * Props:
- *   params   — current URL query params object
- *   setParam — function to update a single param
- *   removeParam — function to remove a single param
- *   clearAll — function to clear all filters
  */
-export default function FilterSidebar({ params, setParam, removeParam, clearAll, layout = 'both' }) {
-  const [categories, setCategories] = useState([]);
+export default function FilterSidebar({ params, setParam, removeParam, clearAll, layout = 'both' }: FilterSidebarProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [minPrice, setMinPrice] = useState(params.min_price || '');
   const [maxPrice, setMaxPrice] = useState(params.max_price || '');
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -30,7 +39,7 @@ export default function FilterSidebar({ params, setParam, removeParam, clearAll,
     setMaxPrice(params.max_price || '');
   }, [params.min_price, params.max_price]);
 
-  const handleCategoryClick = (slug) => {
+  const handleCategoryClick = (slug: string) => {
     if (params.category === slug) {
       removeParam('category');
     } else {
@@ -44,7 +53,7 @@ export default function FilterSidebar({ params, setParam, removeParam, clearAll,
 
     if (maxPrice) {
       // Use a slight delay so both params update
-      const url = new URL(window.location);
+      const url = new URL(window.location.href);
       if (minPrice) url.searchParams.set('min_price', minPrice);
       else url.searchParams.delete('min_price');
       if (maxPrice) url.searchParams.set('max_price', maxPrice);

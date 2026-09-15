@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { Link } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import Layout from '../Components/layout/Layout';
@@ -23,7 +23,7 @@ export default function Register() {
     role: 'buyer',
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     post('/register', {
       onFinish: () => reset('password', 'password_confirmation'),

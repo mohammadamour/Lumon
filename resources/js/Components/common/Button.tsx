@@ -5,13 +5,20 @@
  *   <Button>Click me</Button>
  *   <Button variant="outline" size="lg">Outline</Button>
  */
+import React, { ButtonHTMLAttributes } from 'react';
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'outline' | 'ghost' | 'danger' | 'success';
+  size?: 'sm' | 'md' | 'lg';
+}
+
 export default function Button({
   children,
   variant = 'primary',
   size = 'md',
   className = '',
   ...props
-}) {
+}: ButtonProps) {
   const base =
     'inline-flex items-center justify-center font-semibold rounded-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none';
 

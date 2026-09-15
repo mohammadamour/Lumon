@@ -7,15 +7,15 @@ import { useState, useCallback } from 'react';
  * without triggering a full Inertia page navigation.
  * Changing any filter (non-page) param automatically resets page to 1.
  */
-function readParams() {
-  return Object.fromEntries(new URL(window.location).searchParams);
+function readParams(): Record<string, string> {
+  return Object.fromEntries(new URL(window.location.href).searchParams);
 }
 
 export default function useQueryParams() {
-  const [params, setParams] = useState(readParams);
+  const [params, setParams] = useState<Record<string, string>>(readParams);
 
-  const setParam = useCallback((key, value) => {
-    const url = new URL(window.location);
+  const setParam = useCallback((key: string, value: string | number | null | undefined) => {
+    const url = new URL(window.location.href);
     if (value === null || value === undefined || value === '') {
       url.searchParams.delete(key);
     } else {
@@ -29,15 +29,15 @@ export default function useQueryParams() {
     setParams(Object.fromEntries(url.searchParams));
   }, []);
 
-  const removeParam = useCallback((key) => {
-    const url = new URL(window.location);
+  const removeParam = useCallback((key: string) => {
+    const url = new URL(window.location.href);
     url.searchParams.delete(key);
     window.history.replaceState({}, '', url);
     setParams(Object.fromEntries(url.searchParams));
   }, []);
 
   const clearAll = useCallback(() => {
-    const url = new URL(window.location);
+    const url = new URL(window.location.href);
     url.search = '';
     window.history.replaceState({}, '', url);
     setParams({});

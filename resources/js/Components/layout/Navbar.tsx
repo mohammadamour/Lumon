@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import { ShoppingCart, User, Menu, X, Plus, LogOut, ChevronDown } from 'lucide-react';
+import { PageProps } from '@/types';
 
 const NAV_LINKS = [
   { label: 'Home',     to: '/',        type: 'route' },
@@ -14,7 +15,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const { url, props } = usePage();
+  const { url, props } = usePage<PageProps>();
   const user = props.auth?.user ?? null;
   const isSeller = user?.role === 'seller';
 
@@ -40,7 +41,7 @@ export default function Navbar() {
   }, [userMenuOpen]);
 
   // --- anchor-scroll helper ---
-  const handleAnchorClick = (e, link) => {
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, link: { anchor?: string; to: string; type: string; label: string }) => {
     e.preventDefault();
 
     // Get the current path without query strings
@@ -48,7 +49,7 @@ export default function Navbar() {
 
     if (currentPath === '/') {
       // Already on home — just scroll
-      const el = document.getElementById(link.anchor);
+      const el = link.anchor ? document.getElementById(link.anchor) : null;
       el?.scrollIntoView({ behavior: 'smooth' });
     } else {
       // Navigate home first, scroll after paint
@@ -56,7 +57,7 @@ export default function Navbar() {
         onFinish: () => {
           requestAnimationFrame(() => {
             setTimeout(() => {
-              const el = document.getElementById(link.anchor);
+              const el = link.anchor ? document.getElementById(link.anchor) : null;
               el?.scrollIntoView({ behavior: 'smooth' });
             }, 100);
           });
@@ -73,7 +74,7 @@ export default function Navbar() {
   };
 
   // --- active helper ---
-  const isActive = (link) => {
+  const isActive = (link: { type: string; to: string; label: string }) => {
     if (link.type === 'route') {
       const currentPath = url.split('?')[0];
       return currentPath === link.to;

@@ -8,18 +8,20 @@ const SORT_OPTIONS = [
   { label: 'Name: A → Z', value: 'name', order: 'asc' },
 ];
 
-/**
- * SortDropdown — sort selector for the Shop page.
- */
-export default function SortDropdown({ params, setParam }) {
+interface SortDropdownProps {
+  params: Record<string, string>;
+  setParam: (key: string, value: string) => void;
+}
+
+export default function SortDropdown({ params, setParam }: SortDropdownProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   // Close on outside click
   useEffect(() => {
     if (!open) return;
-    const handle = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    const handle = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener('click', handle);
     return () => document.removeEventListener('click', handle);
@@ -29,9 +31,9 @@ export default function SortDropdown({ params, setParam }) {
     (o) => o.value === params.sort_by && o.order === params.sort_order
   ) || SORT_OPTIONS[0];
 
-  const handleSelect = (option) => {
+  const handleSelect = (option: { label: string; value: string; order: string }) => {
     // Set both params — use direct URL manipulation to batch them
-    const url = new URL(window.location);
+    const url = new URL(window.location.href);
     url.searchParams.set('sort_by', option.value);
     url.searchParams.set('sort_order', option.order);
     url.searchParams.delete('page');

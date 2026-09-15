@@ -12,7 +12,21 @@ import { Star, ShoppingBag } from 'lucide-react';
  *
  * Gracefully handles missing data with fallbacks.
  */
-export default function ProductCard({ product = {} }) {
+interface ProductCardProps {
+  product?: {
+    id?: number;
+    name?: string;
+    price?: number | string;
+    average_rating?: number;
+    review_count?: number;
+    seller?: { id?: number; name?: string };
+    image_url?: string;
+    slug?: string;
+    stock?: number;
+  };
+}
+
+export default function ProductCard({ product = {} }: ProductCardProps) {
   const {
     name = 'Product',
     price = '0.00',

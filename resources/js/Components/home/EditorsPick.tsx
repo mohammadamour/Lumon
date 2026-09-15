@@ -33,7 +33,7 @@ const CATEGORIES = [
   },
 ];
 
-function CategoryCard({ category }) {
+function CategoryCard({ category }: { category: { label: string; image: string; href: string; span?: string; id?: string } }) {
   return (
     // h-full is critical — lets the Link fill its grid cell so the img is constrained
     <Link

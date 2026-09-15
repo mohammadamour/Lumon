@@ -1,13 +1,12 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Pagination as PaginationType } from '@/types';
 
-/**
- * Pagination — page navigation for paginated API responses.
- *
- * Props:
- *   meta     — Laravel pagination meta: { current_page, last_page, total, per_page }
- *   setParam — function to set the "page" query param
- */
-export default function Pagination({ meta, setParam }) {
+interface PaginationProps {
+  meta: PaginationType<any> | null;
+  setParam: (key: string, value: number) => void;
+}
+
+export default function Pagination({ meta, setParam }: PaginationProps) {
   if (!meta || meta.last_page <= 1) return null;
 
   const { current_page: current, last_page: last } = meta;
@@ -59,7 +58,7 @@ export default function Pagination({ meta, setParam }) {
         ) : (
           <button
             key={page}
-            onClick={() => setParam('page', page)}
+            onClick={() => setParam('page', page as number)}
             className={`${btnBase} ${
               page === current
                 ? 'bg-primary text-white shadow-sm'
