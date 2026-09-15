@@ -12,6 +12,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'seller_id',
         'name',
         'slug',
         'description',
@@ -19,6 +20,7 @@ class Product extends Model
         'stock',
         'is_active',
         'category_id',
+        'image_url',
     ];
 
     protected function casts(): array
@@ -30,6 +32,8 @@ class Product extends Model
         ];
     }
 
+    // ── Relationships ──
+
     /**
      * The category that the product belongs to.
      */
@@ -37,5 +41,12 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
-}
 
+    /**
+     * The seller (user) who listed this product.
+     */
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+}
