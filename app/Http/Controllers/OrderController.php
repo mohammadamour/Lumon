@@ -22,7 +22,7 @@ class OrderController extends Controller
     // Show a specific order
     public function show(Request $request, Order $order)
     {
-        if ($order->user_id !== $request->user()->id && ! $request->user()->is_admin) {
+        if ($order->user_id !== $request->user()->id && ! $request->user()->isSeller()) {
             return response()->json(['message' => 'Unauthorized access.'], 403);
         }
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,14 +22,21 @@ Route::get('/products', function () {
     return Inertia::render('Shop');
 });
 
-Route::get('/login', function () {
-    return Inertia::render('Login');
+// ── Guest-Only Auth Routes ──
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/demo-login', [AuthController::class, 'demoLogin']);
 });
 
-Route::get('/register', function () {
-    return Inertia::render('Register');
-});
+// ── Authenticated Routes ──
 
-Route::get('/cart', function () {
-    return Inertia::render('Cart');
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/cart', function () {
+        return Inertia::render('Cart');
+    });
 });

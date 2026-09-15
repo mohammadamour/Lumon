@@ -3,17 +3,17 @@
 A pure backend RESTful API built with Laravel 11/12, MySQL, and Sanctum. Designed to handle product catalog management, cart logic, user authentication, and order processing without a coupled frontend.
 
 ## Current Stage: Database & Core Models
+
 - Initialized clean Laravel API project with Sanctum integration.
 - Database configuration connected to MySQL.
 - Initializing migration schemas and Eloquent models for Categories and Products with `hasMany` / `belongsTo` relationships.
 
 ## Tech Stack
+
 - **Framework:** Laravel
 - **Database:** MySQL
 - **Auth:** Laravel Sanctum
 - **API Testing:** Postman
-
-
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
@@ -73,3 +73,12 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+running it locally (temp steps):
+
+php artisan serve
+npm run dev
+turn on sql xampp
+
+for bagisto
+just turn on herd

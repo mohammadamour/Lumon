@@ -7,6 +7,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,16 +18,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Category::factory(5)
-            ->has(Product::factory()->count(10)) // Each category will have 4 products
-            ->create();
-        // User::factory(10)->create();
-        // Category::factory(5)->create();
-        // Product::factory(20)->create();
+        // ── Demo Accounts (One-Click Recruiter Access) ──
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $demoBuyer = User::create([
+            'name' => 'Demo Buyer',
+            'email' => 'buyer@lumon.demo',
+            'password' => Hash::make('password'),
+            'role' => 'buyer',
         ]);
+
+        $demoSeller = User::create([
+            'name' => 'Demo Seller',
+            'email' => 'seller@lumon.demo',
+            'password' => Hash::make('password'),
+            'role' => 'seller',
+        ]);
+
+        // ── Categories & Products ──
+
+        Category::factory(5)
+            ->has(Product::factory()->count(10))
+            ->create();
     }
 }

@@ -4,69 +4,103 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    // Register new user & return token
+    // ── Login ──
+
+    public function showLogin()
+    {
+        return inertia('Login');
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->intended('/');
+    }
+
+    // ── Register ──
+
+    public function showRegister()
+    {
+        return inertia('Register');
+    }
+
     public function register(Request $request)
     {
         $fields = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:buyer,seller',
         ]);
 
         $user = User::create([
             'name' => $fields['name'],
             'email' => $fields['email'],
             'password' => Hash::make($fields['password']),
+            'role' => $fields['role'],
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        Auth::login($user);
 
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ], 201);
+        $request->session()->regenerate();
+
+        return redirect('/');
     }
 
-    // Login user & return token
-    public function login(Request $request)
+    // ── Logout ──
+
+    public function logout(Request $request)
     {
-        $fields = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+
+    // ── One-Click Demo Access ──
+
+    public function demoLogin(Request $request)
+    {
+        $request->validate([
+            'role' => 'required|in:buyer,seller',
         ]);
 
-        $user = User::where('email', $fields['email'])->first();
+        $email = $request->role === 'seller'
+            ? 'seller@lumon.demo'
+            : 'buyer@lumon.demo';
 
-        if (! $user || ! Hash::check($fields['password'], $user->password)) {
+        $user = User::where('email', $email)->first();
+
+        if (! $user) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'email' => ['Demo account not found. Please run: php artisan migrate:fresh --seed'],
             ]);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        Auth::login($user);
 
-        return response()->json([
-            'message' => 'Logged in successfully',
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ]);
-    }
+        $request->session()->regenerate();
 
-    // Revoke current token (Logout)
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => 'Logged out successfully'
-        ]);
+        return redirect('/');
     }
 }
