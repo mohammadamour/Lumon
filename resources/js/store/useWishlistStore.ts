@@ -47,13 +47,13 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     // 2. Server Sync
     try {
       await axios.post('/api/wishlist', { product_id: productId });
-    } catch (err) {
+    } catch (err: any) {
       // 3. Revert on failure (e.g., if guest user)
       // In a real app, you might show a toast saying "Please login" here
       set({ ids: currentIds });
       
       // If unauthorized, redirect to login
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
+      if (err.response?.status === 401) {
           window.location.href = '/login';
       }
     }
