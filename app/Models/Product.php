@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -49,4 +50,32 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'seller_id');
     }
+
+    /**
+     * Reviews left on this product.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    // ── Computed Attributes ──
+
+    /**
+     * Average star rating (1.0–5.0), computed from all reviews.
+     * Returns 0 if no reviews exist.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return round($this->reviews()->avg('rating') ?? 0, 1);
+    }
+
+    /**
+     * Total number of reviews on this product.
+     */
+    public function getReviewCountAttribute(): int
+    {
+        return $this->reviews()->count();
+    }
 }
+

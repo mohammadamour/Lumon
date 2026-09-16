@@ -27,8 +27,8 @@ class ProductResource extends JsonResource
             'stock' => $this->stock,
             'is_active' => $this->is_active,
             'image_url' => $this->image_url,
-            'average_rating' => 0,   // Computed from reviews (Phase 6)
-            'review_count' => 0,     // Computed from reviews (Phase 6)
+            'average_rating' => (float) ($this->reviews_avg_rating ?? $this->average_rating),
+            'review_count' => (int) ($this->reviews_count ?? $this->review_count),
             // Loads category details only when requested/loaded
             'category' => new CategoryResource($this->whenLoaded('category')),
             'created_at' => $this->created_at?->toDateTimeString(),

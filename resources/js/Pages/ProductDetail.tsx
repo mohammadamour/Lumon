@@ -18,6 +18,7 @@ import QuantitySelector from '../Components/product/QuantitySelector';
 import StarRating from '../Components/common/StarRating';
 import ProductCard from '../Components/common/ProductCard';
 import WishlistButton from '../Components/common/WishlistButton';
+import ReviewSection from '../Components/product/ReviewSection';
 import { useCartStore } from '../store/useCartStore';
 import type { Product, PageProps } from '@/types';
 
@@ -240,18 +241,7 @@ export default function ProductDetail() {
               )}
 
               {activeTab === 'reviews' && (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 mb-4">
-                    <Star size={28} className="text-gray-300" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">
-                    No reviews yet
-                  </h3>
-                  <p className="text-sm text-gray-500 max-w-sm">
-                    Be the first to review this product. Reviews will be
-                    available in an upcoming update.
-                  </p>
-                </div>
+                <ReviewSection product={product} />
               )}
             </div>
           </div>

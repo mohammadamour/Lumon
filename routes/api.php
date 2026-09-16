@@ -19,6 +19,7 @@ Route::get('/ping', function () {
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product:slug}', [ProductController::class, 'show']);
+Route::get('/products/{product:slug}/reviews', [\App\Http\Controllers\ReviewController::class, 'index']);
 
 // ── Protected Routes (Session-based via Sanctum SPA) ──
 
@@ -40,6 +41,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/checkout', [OrderController::class, 'store']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
+
+    // Review Endpoints
+    Route::post('/products/{product:slug}/reviews', [\App\Http\Controllers\ReviewController::class, 'store']);
+    Route::put('/reviews/{review}', [\App\Http\Controllers\ReviewController::class, 'update']);
+    Route::delete('/reviews/{review}', [\App\Http\Controllers\ReviewController::class, 'destroy']);
 });
 
 // ── Seller-Only Product Management ──

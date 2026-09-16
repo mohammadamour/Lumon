@@ -85,5 +85,8 @@ class DatabaseSeeder extends Seeder
                     'category_id' => $category->id,
                 ]);
         }
+
+        // ── Reviews ──
+        $this->call(ReviewSeeder::class);
     }
 }

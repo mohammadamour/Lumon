@@ -31,12 +31,15 @@ class ProductController extends Controller
                 'min:0',
                 Rule::when($request->filled('min_price'), ['gte:min_price']),
             ],
-            'sort_by' => ['nullable', 'in:price,created_at,name'],
+            'sort_by' => ['nullable', 'in:price,created_at,name,rating'],
             'sort_order' => ['nullable', 'in:asc,desc'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:48'],
         ]);
 
-        $query = Product::with(['category', 'seller'])->where('is_active', true);
+        $query = Product::with(['category', 'seller'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->where('is_active', true);
 
         // Search by name or description
         if (! empty($validated['search'])) {
@@ -73,7 +76,9 @@ class ProductController extends Controller
         $sortBy = $validated['sort_by'] ?? 'created_at';
         $sortOrder = $validated['sort_order'] ?? 'desc';
 
-        if (in_array($sortBy, ['price', 'created_at', 'name'])) {
+        if ($sortBy === 'rating') {
+            $query->orderBy('reviews_avg_rating', $sortOrder === 'asc' ? 'asc' : 'desc');
+        } elseif (in_array($sortBy, ['price', 'created_at', 'name'])) {
             $query->orderBy($sortBy, $sortOrder === 'asc' ? 'asc' : 'desc');
         }
 
