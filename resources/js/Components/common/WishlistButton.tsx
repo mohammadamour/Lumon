@@ -9,8 +9,9 @@ interface WishlistButtonProps {
 }
 
 export default function WishlistButton({ productId, className = '', size = 20 }: WishlistButtonProps) {
-  const { isWishlisted, toggle } = useWishlistStore();
-  const wishlisted = isWishlisted(productId);
+  const ids = useWishlistStore(state => state.ids);
+  const toggle = useWishlistStore(state => state.toggle);
+  const wishlisted = ids.has(productId);
 
   return (
     <button

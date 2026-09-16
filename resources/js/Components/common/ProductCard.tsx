@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import { Product } from '@/types';
 import WishlistButton from './WishlistButton';
+import { useCartStore } from '../../store/useCartStore';
 
 /**
  * ProductCard — reusable product card used in FeaturedProducts (home) and Shop page.
@@ -29,6 +30,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product = {} }: ProductCardProps) {
+  const addItem = useCartStore((state) => state.addItem);
   const {
     name = 'Product',
     price = '0.00',
@@ -83,7 +85,12 @@ export default function ProductCard({ product = {} }: ProductCardProps) {
           <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
             <button
               className="w-full bg-white/95 backdrop-blur-sm text-gray-900 font-semibold py-2.5 rounded-xl shadow flex items-center justify-center gap-2 hover:bg-gray-900 hover:text-white transition-colors"
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // @ts-ignore - ProductCardProps.product allows missing fields but addItem expects full Product
+                addItem(product, 1);
+              }}
             >
               <ShoppingBag size={18} />
               Quick Add

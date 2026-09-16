@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
-import { ShoppingCart, User, Menu, X, Plus, LogOut, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Heart, User, Menu, X, Plus, LogOut, ChevronDown } from 'lucide-react';
 import { PageProps } from '@/types';
 import { useCartStore } from '../../store/useCartStore';
 
@@ -132,6 +132,17 @@ export default function Navbar() {
 
         {/* ─── Desktop Right Actions ─── */}
         <div className="hidden items-center gap-2 md:flex">
+          {/* Wishlist */}
+          {user && (
+            <Link
+              href="/wishlist"
+              className="relative rounded-lg p-2 text-muted transition-colors hover:bg-primary-50 hover:text-primary"
+              aria-label="Wishlist"
+            >
+              <Heart size={20} strokeWidth={1.8} />
+            </Link>
+          )}
+
           {/* Cart */}
           <button
             onClick={openDrawer}
@@ -259,6 +270,17 @@ export default function Navbar() {
             ))}
 
             <hr className="my-2 border-light-200" />
+
+            {/* Mobile wishlist */}
+            {user && (
+              <Link
+                href="/wishlist"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-body font-medium text-muted transition-colors hover:bg-primary-50 hover:text-primary"
+              >
+                <Heart size={18} strokeWidth={1.8} />
+                Wishlist
+              </Link>
+            )}
 
             {/* Mobile cart */}
             <button
