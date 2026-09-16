@@ -1,5 +1,7 @@
 import { Link } from '@inertiajs/react';
-import { Star, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag, Star } from 'lucide-react';
+import { Product } from '@/types';
+import WishlistButton from './WishlistButton';
 
 /**
  * ProductCard — reusable product card used in FeaturedProducts (home) and Shop page.
@@ -67,6 +69,14 @@ export default function ProductCard({ product = {} }: ProductCardProps) {
             Out of Stock
           </div>
         )}
+
+        {/* Actions (Wishlist & Quick Add) */}
+        <div className="absolute right-3 top-3 z-10 flex flex-col gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <WishlistButton 
+            productId={product.id || 0}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-all hover:bg-gray-50 hover:text-red-500 active:scale-95" 
+          />
+        </div>
 
         {/* Quick action overlay */}
         {!isOutOfStock && (

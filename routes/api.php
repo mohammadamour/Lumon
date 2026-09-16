@@ -32,6 +32,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/items/{cartItem}', [CartController::class, 'update']);
     Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy']);
 
+    // Wishlist Endpoints
+    Route::get('/wishlist/ids', [\App\Http\Controllers\WishlistController::class, 'ids']);
+    Route::post('/wishlist', [\App\Http\Controllers\WishlistController::class, 'toggle']);
+
     // Order Endpoints
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/checkout', [OrderController::class, 'store']);

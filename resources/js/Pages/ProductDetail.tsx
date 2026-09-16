@@ -17,6 +17,8 @@ import ProductGallery from '../Components/product/ProductGallery';
 import QuantitySelector from '../Components/product/QuantitySelector';
 import StarRating from '../Components/common/StarRating';
 import ProductCard from '../Components/common/ProductCard';
+import WishlistButton from '../Components/common/WishlistButton';
+import { useCartStore } from '../store/useCartStore';
 import type { Product, PageProps } from '@/types';
 
 // ── Types for this page's Inertia props ──
@@ -38,8 +40,16 @@ export default function ProductDetail() {
   const product = productWrapper.data;
   const recommendedProducts = recommended.data;
 
+  const { addItem } = useCartStore();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<TabKey>('description');
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddToCart = async () => {
+    setIsAdding(true);
+    await addItem(product, quantity);
+    setIsAdding(false);
+  };
 
   const isOutOfStock = product.stock <= 0;
   const sellerName = product.seller?.name || 'Lumon Store';
@@ -137,19 +147,18 @@ export default function ProductDetail() {
                 )}
 
                 <button
-                  disabled={isOutOfStock}
+                  onClick={handleAddToCart}
+                  disabled={isOutOfStock || isAdding}
                   className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-gray-800 hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   <ShoppingBag size={18} />
-                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  {isOutOfStock ? 'Out of Stock' : (isAdding ? 'Adding...' : 'Add to Cart')}
                 </button>
 
-                <button
+                <WishlistButton 
+                  productId={product.id}
                   className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-400 transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-500"
-                  aria-label="Add to wishlist"
-                >
-                  <Heart size={20} />
-                </button>
+                />
               </div>
 
               {/* Trust badges */}

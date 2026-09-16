@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import { ShoppingCart, User, Menu, X, Plus, LogOut, ChevronDown } from 'lucide-react';
 import { PageProps } from '@/types';
+import { useCartStore } from '../../store/useCartStore';
 
 const NAV_LINKS = [
   { label: 'Home',     to: '/',        type: 'route' },
@@ -18,6 +19,8 @@ export default function Navbar() {
   const { url, props } = usePage<PageProps>();
   const user = props.auth?.user ?? null;
   const isSeller = user?.role === 'seller';
+  const { openDrawer, getItemCount } = useCartStore();
+  const cartItemsCount = getItemCount();
 
   // --- scroll shadow ---
   useEffect(() => {
@@ -130,13 +133,18 @@ export default function Navbar() {
         {/* ─── Desktop Right Actions ─── */}
         <div className="hidden items-center gap-2 md:flex">
           {/* Cart */}
-          <Link
-            href="/cart"
+          <button
+            onClick={openDrawer}
             className="relative rounded-lg p-2 text-muted transition-colors hover:bg-primary-50 hover:text-primary"
             aria-label="Shopping cart"
           >
             <ShoppingCart size={20} strokeWidth={1.8} />
-          </Link>
+            {cartItemsCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
+                {cartItemsCount}
+              </span>
+            )}
+          </button>
 
           {user ? (
             <>
@@ -253,13 +261,20 @@ export default function Navbar() {
             <hr className="my-2 border-light-200" />
 
             {/* Mobile cart */}
-            <Link
-              href="/cart"
-              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-body font-medium text-muted transition-colors hover:bg-primary-50 hover:text-primary"
+            <button
+              onClick={openDrawer}
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-body font-medium text-muted transition-colors hover:bg-primary-50 hover:text-primary"
             >
-              <ShoppingCart size={18} strokeWidth={1.8} />
-              Cart
-            </Link>
+              <div className="flex items-center gap-2">
+                <ShoppingCart size={18} strokeWidth={1.8} />
+                Cart
+              </div>
+              {cartItemsCount > 0 && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                  {cartItemsCount}
+                </span>
+              )}
+            </button>
 
             {user ? (
               <>

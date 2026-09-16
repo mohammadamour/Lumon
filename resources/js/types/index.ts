@@ -49,6 +49,12 @@ export interface Review {
     is_owner: boolean;
 }
 
+export interface CartItem {
+    id?: number; // DB ID if authenticated, undefined if guest
+    product: Product;
+    quantity: number;
+}
+
 export interface Pagination<T> {
     data: T[];
     current_page: number;

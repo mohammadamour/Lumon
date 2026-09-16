@@ -62,5 +62,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/cart', function () {
         return Inertia::render('Cart');
     });
+    Route::get('/checkout', function () {
+        return Inertia::render('Checkout');
+    });
+    Route::get('/wishlist', function () {
+        return Inertia::render('Wishlist');
+    });
 });
 
