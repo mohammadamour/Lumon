@@ -13,7 +13,7 @@ class CartController extends Controller
     public function index(Request $request)
     {
         $cart = $request->user()->cart()->firstOrCreate([]);
-        $cart->load('items.product');
+        $cart->load('items.product.seller');
 
         return new CartResource($cart);
     }
@@ -51,7 +51,7 @@ class CartController extends Controller
             ]);
         }
 
-        $cart->load('items.product');
+        $cart->load('items.product.seller');
 
         return new CartResource($cart);
     }
@@ -74,7 +74,7 @@ class CartController extends Controller
 
         $cartItem->update(['quantity' => $validated['quantity']]);
 
-        $cart = $request->user()->cart->load('items.product');
+        $cart = $request->user()->cart->load('items.product.seller');
 
         return new CartResource($cart);
     }

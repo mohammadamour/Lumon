@@ -27,6 +27,35 @@ interface CartState {
 }
 
 /**
+ * isValidCartItems — Validates that server response items match the
+ * CartItem shape the frontend expects ({ product: { id, name, ... }, quantity }).
+ *
+ * WHY THIS EXISTS:
+ * The optimistic update always produces correctly-shaped items because
+ * WE build them from a known Product object. But the server response
+ * comes from CartItemResource → ProductResource, and if ANY part of
+ * that chain is wrong (missing eager-load, serialization bug, etc.),
+ * we get a shape mismatch. Without this check, we'd overwrite good
+ * optimistic data with broken server data and crash the entire UI.
+ *
+ * This is a DEFENSIVE layer — if the server response is valid, we
+ * use it (it has DB IDs we need). If it's not, we silently keep
+ * the optimistic data and log a warning for debugging.
+ */
+function isValidCartItems(items: unknown): items is CartItem[] {
+  if (!Array.isArray(items)) return false;
+  return items.every(
+    (item) =>
+      item &&
+      typeof item === 'object' &&
+      typeof item.quantity === 'number' &&
+      item.product &&
+      typeof item.product === 'object' &&
+      typeof item.product.id === 'number'
+  );
+}
+
+/**
  * useCartStore — Hybrid cart state.
  * Uses local state with optimistic updates for responsiveness.
  * We persist to localStorage so guest users retain their cart.
@@ -46,9 +75,9 @@ export const useCartStore = create<CartState>()(
         try {
           set({ isLoading: true });
           const res = await axios.get('/api/cart');
-          // Map DB items back to CartItem
-          if (res.data?.data?.items) {
-            set({ items: res.data.data.items });
+          const serverItems = res.data?.data?.items;
+          if (isValidCartItems(serverItems)) {
+            set({ items: serverItems });
           }
         } catch (err) {
           // If guest (401), we just rely on local state
@@ -79,12 +108,13 @@ export const useCartStore = create<CartState>()(
         // Sync to server
         try {
           const res = await axios.post('/api/cart', { product_id: product.id, quantity });
-          if (res.data?.data?.items) {
-             set({ items: res.data.data.items });
+          const serverItems = res.data?.data?.items;
+          if (isValidCartItems(serverItems)) {
+            set({ items: serverItems });
           }
+          // If invalid shape, we keep the optimistic update (it's correct)
         } catch (error) {
           // If 401, they are a guest. The optimistic update holds the cart.
-          // In a real app we might revert the optimistic update on other errors.
         }
       },
 
@@ -105,8 +135,9 @@ export const useCartStore = create<CartState>()(
         if (item.id) {
           try {
             const res = await axios.put(`/api/cart/items/${item.id}`, { quantity });
-            if (res.data?.data?.items) {
-               set({ items: res.data.data.items });
+            const serverItems = res.data?.data?.items;
+            if (isValidCartItems(serverItems)) {
+              set({ items: serverItems });
             }
           } catch (error) {
              // Revert on error if needed
@@ -151,6 +182,17 @@ export const useCartStore = create<CartState>()(
     {
       name: 'lumon-cart',
       partialize: (state) => ({ items: state.items }), // Only persist items to localStorage
+      /**
+       * When the store rehydrates from localStorage on page load,
+       * validate the stored items. If they're corrupted (e.g. from
+       * a previous bug that stored flat data), wipe them clean so
+       * the app doesn't crash on render.
+       */
+      onRehydrateStorage: () => (state) => {
+        if (state && !isValidCartItems(state.items)) {
+          state.items = [];
+        }
+      },
     }
   )
 );

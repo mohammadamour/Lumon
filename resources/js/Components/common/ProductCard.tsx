@@ -1,61 +1,37 @@
 import { Link } from '@inertiajs/react';
-import { Heart, ShoppingBag, Star } from 'lucide-react';
-import { Product } from '@/types';
+import { ShoppingBag, Star } from 'lucide-react';
+import type { Product } from '@/types';
 import WishlistButton from './WishlistButton';
 import { useCartStore } from '../../store/useCartStore';
 
 /**
- * ProductCard — reusable product card used in FeaturedProducts (home) and Shop page.
+ * ProductCard — reusable product card used on the Shop page, Wishlist,
+ * ProductDetail recommendations, and FeaturedProducts (home).
  *
- * Props:
- *   product: {
- *     id, name, price, average_rating, review_count,
- *     seller: { id, name }, image_url, slug, stock
- *   }
- *
- * Gracefully handles missing data with fallbacks.
+ * Accepts a full Product object. All rendering uses safe optional chaining
+ * so a missing nested field (e.g. seller) never crashes the component.
  */
 interface ProductCardProps {
-  product?: {
-    id?: number;
-    name?: string;
-    price?: number | string;
-    average_rating?: number;
-    review_count?: number;
-    seller?: { id?: number; name?: string };
-    image_url?: string;
-    slug?: string;
-    stock?: number;
-  };
+  product: Product;
 }
 
-export default function ProductCard({ product = {} }: ProductCardProps) {
+export default function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
-  const {
-    name = 'Product',
-    price = '0.00',
-    average_rating = 0,
-    review_count = 0,
-    seller = {},
-    image_url,
-    slug = '#',
-    stock,
-  } = product;
 
-  const sellerName = seller?.name || 'Lumon Store';
-  const isOutOfStock = stock !== undefined && stock <= 0;
+  const sellerName = product.seller?.name ?? 'Lumon Store';
+  const isOutOfStock = product.stock !== undefined && product.stock <= 0;
 
   return (
     <Link
-      href={`/products/${slug}`}
+      href={`/products/${product.slug}`}
       className="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 transition-all duration-300"
     >
       {/* ── Image ── */}
       <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
-        {image_url ? (
+        {product.image_url ? (
           <img
-            src={image_url}
-            alt={name}
+            src={product.image_url}
+            alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
           />
@@ -75,7 +51,7 @@ export default function ProductCard({ product = {} }: ProductCardProps) {
         {/* Actions (Wishlist & Quick Add) */}
         <div className="absolute right-3 top-3 z-10 flex flex-col gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           <WishlistButton 
-            productId={product.id || 0}
+            productId={product.id}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-all hover:bg-gray-50 hover:text-red-500 active:scale-95" 
           />
         </div>
@@ -88,7 +64,6 @@ export default function ProductCard({ product = {} }: ProductCardProps) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // @ts-ignore - ProductCardProps.product allows missing fields but addItem expects full Product
                 addItem(product, 1);
               }}
             >
@@ -107,14 +82,14 @@ export default function ProductCard({ product = {} }: ProductCardProps) {
               {sellerName}
             </p>
             <h3 className="text-base font-bold text-gray-900 truncate">
-              {name}
+              {product.name}
             </h3>
           </div>
-          {average_rating > 0 && (
+          {(product.average_rating ?? 0) > 0 && (
             <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg shrink-0">
               <Star size={14} className="fill-yellow-400 text-yellow-400" />
               <span className="text-xs font-bold text-yellow-700">
-                {Number(average_rating).toFixed(1)}
+                {Number(product.average_rating).toFixed(1)}
               </span>
             </div>
           )}
@@ -122,11 +97,11 @@ export default function ProductCard({ product = {} }: ProductCardProps) {
 
         <div className="mt-1 flex items-center justify-between">
           <span className="text-lg font-extrabold text-blue-600">
-            ${Number(price).toFixed(2)}
+            ${Number(product.price).toFixed(2)}
           </span>
-          {review_count > 0 && (
+          {(product.review_count ?? 0) > 0 && (
             <span className="text-caption text-muted">
-              {review_count} review{review_count !== 1 ? 's' : ''}
+              {product.review_count} review{product.review_count !== 1 ? 's' : ''}
             </span>
           )}
         </div>
