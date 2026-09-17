@@ -24,27 +24,6 @@ Route::get('/products', function () {
     return Inertia::render('Shop');
 });
 
-// ── Product Detail Page ──
-
-Route::get('/products/{product:slug}', function (Product $product) {
-    abort_unless($product->is_active, 404);
-
-    return Inertia::render('ProductDetail', [
-        'product' => new ProductResource(
-            $product->load(['category', 'seller'])
-        ),
-        'recommended' => ProductResource::collection(
-            Product::where('category_id', $product->category_id)
-                ->where('id', '!=', $product->id)
-                ->where('is_active', true)
-                ->inRandomOrder()
-                ->limit(4)
-                ->get()
-                ->load('category', 'seller')
-        ),
-    ]);
-});
-
 // ── Guest-Only Auth Routes ──
 
 Route::middleware('guest')->group(function () {
@@ -91,5 +70,26 @@ Route::get('/sellers/{user}', function (\App\Models\User $user) {
             'name' => $user->name,
             'created_at' => $user->created_at->toDateTimeString(),
         ],
+    ]);
+});
+
+// ── Product Detail Page ──
+
+Route::get('/products/{product:slug}', function (Product $product) {
+    abort_unless($product->is_active, 404);
+
+    return Inertia::render('ProductDetail', [
+        'product' => new ProductResource(
+            $product->load(['category', 'seller'])
+        ),
+        'recommended' => ProductResource::collection(
+            Product::where('category_id', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->where('is_active', true)
+                ->inRandomOrder()
+                ->limit(4)
+                ->get()
+                ->load('category', 'seller')
+        ),
     ]);
 });
