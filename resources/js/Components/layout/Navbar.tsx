@@ -3,6 +3,7 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { ShoppingCart, Heart, User, Menu, X, Plus, LogOut, ChevronDown } from 'lucide-react';
 import { PageProps } from '@/types';
 import { useCartStore } from '../../store/useCartStore';
+import { useToastStore } from '../../store/useToastStore';
 
 const NAV_LINKS = [
   { label: 'Home',     to: '/',        type: 'route' },
@@ -72,6 +73,9 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     router.post('/logout', {}, {
+      onSuccess: () => {
+        useToastStore.getState().addToast('You have been logged out', 'info');
+      },
       onFinish: () => router.visit('/'),
     });
   };

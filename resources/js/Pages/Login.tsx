@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import Layout from '../Components/layout/Layout';
+import { useToastStore } from '../store/useToastStore';
 import { Mail, Lock, Eye, EyeOff, ShoppingBag, Store, Sparkles } from 'lucide-react';
 
 export default function Login() {
@@ -16,6 +17,9 @@ export default function Login() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     post('/login', {
+      onSuccess: () => {
+        useToastStore.getState().addToast('Welcome back!', 'success');
+      },
       onFinish: () => reset('password'),
     });
   };
@@ -23,6 +27,12 @@ export default function Login() {
   const handleDemoLogin = (role: string) => {
     setDemoLoading(role);
     router.post('/demo-login', { role }, {
+      onSuccess: () => {
+        useToastStore.getState().addToast(
+          `Signed in as Demo ${role === 'buyer' ? 'Buyer' : 'Seller'}`,
+          'success'
+        );
+      },
       onFinish: () => setDemoLoading(null),
     });
   };

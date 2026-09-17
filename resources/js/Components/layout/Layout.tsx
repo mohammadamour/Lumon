@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from '../cart/CartDrawer';
+import ToastContainer from '../common/ToastContainer';
 import { useWishlistStore } from '../../store/useWishlistStore';
 import { usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
@@ -28,6 +29,7 @@ export default function Layout({ children }: LayoutProps) {
       </main>
       <Footer />
       <CartDrawer />
+      <ToastContainer />
     </div>
   );
 }

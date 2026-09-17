@@ -7,14 +7,14 @@ const CATEGORIES = [
     id: 'men',
     label: 'MEN',
     image: '/category-men.png',
-    href: '/products?category=men',
+    href: '/products?category=mens-clothing',
     span: 'large', // tall card
   },
   {
     id: 'women',
     label: 'WOMEN',
     image: '/category-women.png',
-    href: '/products?category=women',
+    href: '/products?category=womens-clothing',
     span: 'large',
   },
   {
@@ -28,7 +28,7 @@ const CATEGORIES = [
     id: 'kids',
     label: 'KIDS',
     image: '/category-kid.webp',
-    href: '/products?category=kids',
+    href: '/products?category=kids-clothing',
     span: 'small',
   },
 ];

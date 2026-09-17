@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Head, usePage, router } from '@inertiajs/react';
 import { Upload, X, Image as ImageIcon, ArrowLeft } from 'lucide-react';
 import Layout from '../Components/layout/Layout';
+import { useToastStore } from '../store/useToastStore';
 import axios from '../lib/axios';
 import type { Product, Category, PageProps } from '@/types';
 
@@ -93,6 +94,10 @@ export default function ProductForm() {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
+      useToastStore.getState().addToast(
+        isEditing ? 'Product updated successfully' : 'Product listed successfully',
+        'success'
+      );
       router.visit('/my-products');
     } catch (err: any) {
       if (err.response?.status === 422) {

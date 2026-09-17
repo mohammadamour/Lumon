@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from '../lib/axios';
+import { useToastStore } from './useToastStore';
 
 interface WishlistState {
   ids: Set<number>;
@@ -43,6 +44,11 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
       newIds.add(productId);
     }
     set({ ids: newIds });
+    if (!wasWishlisted) {
+      useToastStore.getState().addToast('Added to wishlist ❤️', 'success');
+    } else {
+      useToastStore.getState().addToast('Removed from wishlist', 'info');
+    }
 
     // 2. Server Sync
     try {

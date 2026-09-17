@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from '../lib/axios';
+import { useToastStore } from './useToastStore';
 import type { CartItem, Product } from '@/types';
 
 interface CartState {
@@ -104,6 +105,7 @@ export const useCartStore = create<CartState>()(
         }
 
         set({ isDrawerOpen: true });
+        useToastStore.getState().addToast(`Added "${product.name}" to cart`, 'success');
 
         // Sync to server
         try {
@@ -148,11 +150,13 @@ export const useCartStore = create<CartState>()(
       removeItem: async (productId) => {
         const currentItems = get().items;
         const item = currentItems.find(i => i.product.id === productId);
+        const itemName = item?.product?.name || 'Item';
 
         // Optimistic update
         set({
           items: currentItems.filter(i => i.product.id !== productId)
         });
+        useToastStore.getState().addToast(`Removed "${itemName}" from cart`, 'info');
 
         if (item?.id) {
           try {

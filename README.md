@@ -84,6 +84,6 @@ for bagisto
 just turn on herd
 
 todo list:
-fixed static bestseller products in landing page
-remove electronics as a category
-make clicking on landing page cateogries lead you to products page with search for that specific category
+- [x] fixed static bestseller products in landing page
+- [x] remove electronics as a category
+- [x] make clicking on landing page cateogries lead you to products page with search for that specific category

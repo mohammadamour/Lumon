@@ -3,6 +3,7 @@ import axios from 'axios';
 import { usePage } from '@inertiajs/react';
 import { Star, Edit2, Trash2 } from 'lucide-react';
 import StarRating from '../common/StarRating';
+import { useToastStore } from '../../store/useToastStore';
 import type { Review, Product, PageProps } from '@/types';
 
 interface ReviewSectionProps {
@@ -81,7 +82,10 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
       
       setRating(5);
       setComment('');
-      // Ideally, trigger a refresh of the product data to update the average rating
+      useToastStore.getState().addToast(
+        editingReviewId ? 'Review updated successfully' : 'Review submitted successfully',
+        'success'
+      );
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to submit review.');
     } finally {
@@ -96,6 +100,7 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
       await axios.delete(`/api/reviews/${id}`);
       setReviews(reviews.filter(r => r.id !== id));
       setTotalReviews(prev => prev - 1);
+      useToastStore.getState().addToast('Review deleted', 'info');
     } catch (err) {
       console.error('Failed to delete review', err);
     }

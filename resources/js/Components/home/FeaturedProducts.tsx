@@ -1,32 +1,23 @@
+import { useState, useEffect } from 'react';
 import { Link } from '@inertiajs/react';
 import ProductCard from '../common/ProductCard';
+import ProductCardSkeleton from '../common/ProductCardSkeleton';
+import axios from '../../lib/axios';
 import type { Product } from '@/types';
 
-// 4 category images, each used twice across 8 cards
-const CATEGORY_IMAGES = [
-  '/category-men.png',
-  '/category-women.png',
-  '/category-accessory.png',
-  '/category-kid.webp',
-];
-
-/**
- * Placeholder products for the homepage hero section.
- * Mapped to match the real `Product` type so ProductCard
- * renders them identically to real API data.
- */
-const PLACEHOLDER_PRODUCTS: Product[] = [
-  { id: 1,  name: 'Urban Puffer Jacket',    price: '89.99',  average_rating: 4.8, review_count: 0, slug: 'product-1', description: '', stock: 10, is_active: true, image_url: CATEGORY_IMAGES[0], seller: { id: 1, name: 'StreetWear Co.' },   created_at: '' },
-  { id: 2,  name: 'Knit Cardigan Set',      price: '54.99',  average_rating: 4.9, review_count: 0, slug: 'product-2', description: '', stock: 10, is_active: true, image_url: CATEGORY_IMAGES[1], seller: { id: 2, name: 'Soft Threads' },     created_at: '' },
-  { id: 3,  name: 'Leather Crossbody Bag',  price: '39.99',  average_rating: 4.7, review_count: 0, slug: 'product-3', description: '', stock: 10, is_active: true, image_url: CATEGORY_IMAGES[2], seller: { id: 3, name: 'Carry Studio' },     created_at: '' },
-  { id: 4,  name: 'Kids Graphic Hoodie',    price: '29.99',  average_rating: 4.8, review_count: 0, slug: 'product-4', description: '', stock: 10, is_active: true, image_url: CATEGORY_IMAGES[3], seller: { id: 4, name: 'Little Wears' },     created_at: '' },
-  { id: 5,  name: 'Slim Fit Chinos',        price: '64.99',  average_rating: 4.6, review_count: 0, slug: 'product-5', description: '', stock: 10, is_active: true, image_url: CATEGORY_IMAGES[0], seller: { id: 1, name: 'StreetWear Co.' },   created_at: '' },
-  { id: 6,  name: 'Floral Summer Dress',    price: '49.99',  average_rating: 4.9, review_count: 0, slug: 'product-6', description: '', stock: 10, is_active: true, image_url: CATEGORY_IMAGES[1], seller: { id: 5, name: 'Bloom Boutique' },   created_at: '' },
-  { id: 7,  name: 'Classic Watch Strap',    price: '19.99',  average_rating: 4.7, review_count: 0, slug: 'product-7', description: '', stock: 10, is_active: true, image_url: CATEGORY_IMAGES[2], seller: { id: 3, name: 'Carry Studio' },     created_at: '' },
-  { id: 8,  name: 'Toddler Canvas Shoes',   price: '24.99',  average_rating: 4.8, review_count: 0, slug: 'product-8', description: '', stock: 10, is_active: true, image_url: CATEGORY_IMAGES[3], seller: { id: 4, name: 'Little Wears' },     created_at: '' },
-];
-
 export default function FeaturedProducts() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    axios.get('/api/products', { params: { per_page: 8 } })
+      .then(res => {
+        setProducts(res.data.data);
+      })
+      .catch(err => console.error("Failed to fetch featured products:", err))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <section id="featured" className="bg-white py-16">
@@ -43,9 +34,17 @@ export default function FeaturedProducts() {
 
         {/* ── Product Grid ── */}
         <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-          {PLACEHOLDER_PRODUCTS.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {loading ? (
+            Array.from({ length: 8 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))
+          ) : products.length > 0 ? (
+            products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <p className="col-span-full text-center text-gray-500">No products available.</p>
+          )}
         </div>
 
         {/* ── Browse More Button ── */}
