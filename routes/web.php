@@ -68,5 +68,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/wishlist', function () {
         return Inertia::render('Wishlist');
     });
+
+    // ── Seller Workspace ──
+    Route::get('/my-products', function () {
+        return Inertia::render('MyProducts');
+    });
+    Route::get('/products/create', function () {
+        return Inertia::render('ProductForm');
+    });
+    Route::get('/products/{product:slug}/edit', function (Product $product) {
+        return Inertia::render('ProductForm', [
+            'product' => new ProductResource($product->load(['category', 'seller'])),
+        ]);
+    });
 });
 
+// ── Public Seller Profile ──
+Route::get('/sellers/{user}', function (\App\Models\User $user) {
+    return Inertia::render('SellerProfile', [
+        'seller' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'created_at' => $user->created_at->toDateTimeString(),
+        ],
+    ]);
+});

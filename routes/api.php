@@ -51,9 +51,10 @@ Route::middleware('auth:sanctum')->group(function () {
 // ── Seller-Only Product Management ──
 
 Route::middleware(['auth:sanctum', 'seller'])->group(function () {
-    Route::post('/products', [ProductController::class, 'store']);
-    Route::put('/products/{product}', [ProductController::class, 'update']);
-    Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+    Route::get('/seller/products', [\App\Http\Controllers\SellerProductController::class, 'index']);
+    Route::post('/seller/products', [\App\Http\Controllers\SellerProductController::class, 'store']);
+    Route::put('/seller/products/{product}', [\App\Http\Controllers\SellerProductController::class, 'update']);
+    Route::delete('/seller/products/{product}', [\App\Http\Controllers\SellerProductController::class, 'destroy']);
 
     // Seller Order Management
     Route::get('/seller/orders', [OrderController::class, 'adminIndex']);

@@ -19,6 +19,7 @@ class ProductController extends Controller
             'search' => ['nullable', 'string', 'max:255'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'category' => ['nullable', 'string', 'max:255', 'exists:categories,slug'],
+            'seller_id' => ['nullable', 'integer', 'exists:users,id'],
             'min_price' => [
                 'nullable',
                 'numeric',
@@ -60,6 +61,11 @@ class ProductController extends Controller
             $query->whereHas('category', function ($categoryQuery) use ($validated) {
                 $categoryQuery->where('slug', $validated['category']);
             });
+        }
+
+        // Filter by seller
+        if (isset($validated['seller_id'])) {
+            $query->where('seller_id', $validated['seller_id']);
         }
 
         // Filter by minimum price

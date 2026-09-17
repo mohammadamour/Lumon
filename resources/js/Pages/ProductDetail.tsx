@@ -92,7 +92,7 @@ export default function ProductDetail() {
             <div className="flex flex-col gap-5">
               {/* Seller */}
               <Link
-                href="#"
+                href={product.seller?.id ? `/sellers/${product.seller.id}` : '#'}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline w-fit"
               >
                 <Store size={14} />
