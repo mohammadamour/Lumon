@@ -101,10 +101,21 @@ export default function ProductForm() {
       router.visit('/my-products');
     } catch (err: any) {
       if (err.response?.status === 422) {
-        setErrors(err.response.data.errors || {});
+        const validationErrors = err.response.data.errors || {};
+        
+        // Dump the entire raw response data so we can see what's actually coming back
+        const rawResponse = JSON.stringify(err.response?.data, null, 2);
+        
+        setErrors({ 
+            ...validationErrors, 
+            general: ['RAW RESPONSE: ' + rawResponse] 
+        });
+        useToastStore.getState().addToast('Please check the form for errors.', 'error');
       } else {
-        setErrors({ general: [err.response?.data?.message || 'Something went wrong.'] });
+        setErrors({ general: [err.response?.data?.message || err.message || 'Something went wrong.'] });
+        useToastStore.getState().addToast('An error occurred. Please try again.', 'error');
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setLoading(false);
     }
@@ -138,9 +149,11 @@ export default function ProductForm() {
           </h1>
 
           {/* General errors */}
-          {errors.general && (
-            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-              {errors.general[0]}
+          {errors.general && errors.general.length > 0 && (
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 flex flex-col gap-1">
+              {errors.general.map((msg, i) => (
+                <div key={i}>• {msg}</div>
+              ))}
             </div>
           )}
 
