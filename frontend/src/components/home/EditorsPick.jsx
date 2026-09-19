@@ -25,10 +25,10 @@ const CATEGORIES = [
     span: 'small',
   },
   {
-    id: 'kids',
-    label: 'KIDS',
+    id: 'electronics',
+    label: 'ELECTRONICS',
     image: '/category-kid.webp',
-    href: '/products?category=kids',
+    href: '/products?category=electronics',
     span: 'small',
   },
 ];
@@ -61,7 +61,7 @@ function CategoryCard({ category }) {
 }
 
 export default function EditorsPick() {
-  const [men, women, accessories, kids] = CATEGORIES;
+  const [men, women, accessories, electronics] = CATEGORIES;
 
   return (
     <section className="bg-light py-16">
@@ -74,10 +74,10 @@ export default function EditorsPick() {
           </p>
         </div>
 
-        {/* Desktop Grid: [Men | Women | Accessories / Kids]
+        {/* Desktop Grid: [Men | Women | Accessories / Electronics]
             Explicit grid-rows so each row is exactly 300px — prevents image natural
             height from blowing out the grid. Men & Women span both rows (600px total).
-            Accessories & Kids each occupy one 300px row in the third column. */}
+            Accessories & Electronics each occupy one 300px row in the third column. */}
         <div className="hidden md:grid md:grid-cols-[1fr_0.85fr_0.65fr] md:grid-rows-[300px_300px] md:gap-3">
           {/* Men — spans 2 rows, full 600px height */}
           <div className="row-span-2 h-full">
@@ -91,13 +91,13 @@ export default function EditorsPick() {
           <div className="h-full">
             <CategoryCard category={accessories} />
           </div>
-          {/* Kids — row 2 of col 3, 300px */}
+          {/* Electronics — row 2 of col 3, 300px */}
           <div className="h-full">
-            <CategoryCard category={kids} />
+            <CategoryCard category={electronics} />
           </div>
         </div>
 
-        {/* Mobile Stack: Men & Women full width, Accessories & Kids slightly smaller */}
+        {/* Mobile Stack: Men & Women full width, Accessories & Electronics slightly smaller */}
         <div className="flex flex-col gap-3 md:hidden">
           <div className="h-72">
             <CategoryCard category={men} />
@@ -109,7 +109,7 @@ export default function EditorsPick() {
             <CategoryCard category={accessories} />
           </div>
           <div className="h-52">
-            <CategoryCard category={kids} />
+            <CategoryCard category={electronics} />
           </div>
         </div>
       </div>

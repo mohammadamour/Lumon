@@ -63,7 +63,7 @@ class DatabaseSeeder extends Seeder
             "Men's Clothing" => 'Stylish menswear for every occasion.',
             "Women's Clothing" => 'Trendy fashion for the modern woman.',
             "Accessories" => 'Complete your look with curated accessories.',
-            "Kids' Clothing" => 'Comfortable and durable clothes for children.',
+            "Electronics" => 'Latest gadgets and electronic devices.',
             "Home & Living" => 'Elevate your living space.',
             "Sports & Outdoors" => 'Gear up for your next adventure.'
         ];
@@ -101,12 +101,12 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Woven Straw Hat', 'price' => 25.00, 'category' => "Accessories", 'desc' => "Wide-brimmed woven straw hat perfect for beach days and summer outings. Size: One Size."],
             ['name' => 'Sterling Silver Hoop Earrings', 'price' => 30.00, 'category' => "Accessories", 'desc' => "Elegant 925 sterling silver hoop earrings, lightweight and hypoallergenic. Size: One Size."],
 
-            // Kids' Clothing
-            ['name' => 'Boys Graphic T-Shirt', 'price' => 15.00, 'category' => "Kids' Clothing", 'desc' => "Fun and durable graphic tee for everyday wear. Available in S, M, L."],
-            ['name' => 'Girls Denim Overalls', 'price' => 25.00, 'category' => "Kids' Clothing", 'desc' => "Classic denim overalls with adjustable straps. Available in S, M, L."],
-            ['name' => 'Toddler Knit Sweater', 'price' => 20.00, 'category' => "Kids' Clothing", 'desc' => "Soft and cozy knit sweater for toddlers. Available in 2T, 3T, 4T."],
-            ['name' => 'Kids Waterproof Jacket', 'price' => 35.00, 'category' => "Kids' Clothing", 'desc' => "Lightweight waterproof jacket with hood. Available in S, M, L."],
-            ['name' => 'Boys Cargo Pants', 'price' => 22.00, 'category' => "Kids' Clothing", 'desc' => "Durable cargo pants with multiple pockets. Available in S, M, L."],
+            // Electronics
+            ['name' => 'Wireless Noise-Canceling Headphones', 'price' => 199.99, 'category' => "Electronics", 'desc' => "Premium over-ear headphones with active noise cancellation and 30-hour battery life."],
+            ['name' => 'Smartwatch Pro', 'price' => 249.00, 'category' => "Electronics", 'desc' => "Advanced smartwatch with health tracking, GPS, and a vibrant OLED display."],
+            ['name' => '4K Action Camera', 'price' => 129.50, 'category' => "Electronics", 'desc' => "Rugged action camera capable of recording 4K video at 60fps. Waterproof up to 10m."],
+            ['name' => 'Portable Power Bank 20000mAh', 'price' => 39.99, 'category' => "Electronics", 'desc' => "High-capacity portable charger with dual USB-C fast charging ports."],
+            ['name' => 'Mechanical Gaming Keyboard', 'price' => 89.00, 'category' => "Electronics", 'desc' => "RGB mechanical keyboard with tactile switches and customizable macro keys."],
 
             // Home & Living
             ['name' => 'Ceramic Table Lamp', 'price' => 45.00, 'category' => "Home & Living", 'desc' => "Modern ceramic table lamp with a linen shade. Perfect for bedside tables or living rooms."],
