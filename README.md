@@ -2,6 +2,8 @@
 
 A modern, full-stack e-commerce platform built with **Laravel 13** and **React 19** using **Inertia.js** for seamless server-driven SPA navigation. Lumon features role-based access for buyers and sellers, real product data sourced from the DummyJSON API, a fully functional shopping cart, checkout flow, wishlist system, and product reviews — all wrapped in a polished, responsive UI.
 
+> **Disclaimer:** This is a portfolio project. It is not a real store, none of the data or products are real, and it is made purely for practice and demonstration purposes.
+
 ---
 
 ## 📸 Screenshots
