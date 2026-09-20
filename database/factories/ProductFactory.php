@@ -10,6 +10,8 @@ use App\Models\Category;
 
 /**
  * @extends Factory<Product>
+ *
+ * Used as a fallback when the DummyJSON API is unreachable during seeding.
  */
 class ProductFactory extends Factory
 {
@@ -26,12 +28,12 @@ class ProductFactory extends Factory
             'seller_id' => User::factory()->seller(),
             'category_id' => Category::factory(),
             'name' => ucfirst($name),
-            'slug' => Str::slug($name),
+            'slug' => Str::slug($name) . '-' . Str::random(5),
             'description' => fake()->paragraph(),
             'price' => fake()->randomFloat(2, 10, 500),
-            'stock' => fake()->numberBetween(0, 50),
+            'stock' => fake()->numberBetween(5, 100),
             'is_active' => true,
-            'image_url' => 'https://picsum.photos/seed/'.Str::slug($name).'/640/800',
+            'image_url' => 'https://dummyjson.com/image/400x500/008080/ffffff?text=' . urlencode(ucfirst($name)),
         ];
     }
 }
