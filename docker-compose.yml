@@ -60,6 +60,16 @@ services:
     networks:
       - lumon
 
+  # 5. Selenium / Chrome (For Dusk E2E Tests)
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: lumon-selenium
+    restart: unless-stopped
+    ports:
+      - "4444:4444"
+    networks:
+      - lumon
+
 networks:
   lumon:
     driver: bridge
