@@ -53,7 +53,7 @@ class CartTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonCount(1, 'data.items')
-            ->assertJsonPath('data.items.0.product_id', $product->id)
+            ->assertJsonPath('data.items.0.product.id', $product->id)
             ->assertJsonPath('data.items.0.quantity', 2)
             ->assertJsonPath('data.items.0.subtotal', 50)
             ->assertJsonPath('data.grand_total', 50);

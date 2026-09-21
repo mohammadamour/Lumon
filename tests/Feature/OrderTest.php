@@ -80,7 +80,7 @@ class OrderTest extends TestCase
 
     public function test_admin_can_list_all_orders(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = User::factory()->create(['role' => 'seller']);
         $firstUser = User::factory()->create();
         $secondUser = User::factory()->create();
         $this->createOrder($firstUser->id);
@@ -88,7 +88,7 @@ class OrderTest extends TestCase
 
         // Admins can inspect the complete paginated order list.
         $response = $this->actingAs($admin, 'sanctum')
-            ->getJson('/api/admin/orders');
+            ->getJson('/api/seller/orders');
 
         $response->assertOk()
             ->assertJsonCount(2, 'data')
@@ -101,14 +101,14 @@ class OrderTest extends TestCase
 
         // The admin endpoint must reject ordinary authenticated customers.
         $response = $this->actingAs($user, 'sanctum')
-            ->getJson('/api/admin/orders');
+            ->getJson('/api/seller/orders');
 
         $response->assertForbidden();
     }
 
     public function test_admin_can_update_order_status(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = User::factory()->create(['role' => 'seller']);
         $owner = User::factory()->create();
         $order = $this->createOrder($owner->id, [
             'status' => 'pending',
@@ -116,7 +116,7 @@ class OrderTest extends TestCase
 
         // Admin status changes should be returned and persisted on the order.
         $response = $this->actingAs($admin, 'sanctum')
-            ->patchJson("/api/admin/orders/{$order->id}/status", [
+            ->patchJson("/api/seller/orders/{$order->id}/status", [
                 'status' => 'processing',
             ]);
 
@@ -132,13 +132,13 @@ class OrderTest extends TestCase
 
     public function test_order_status_must_be_valid(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = User::factory()->create(['role' => 'seller']);
         $owner = User::factory()->create();
         $order = $this->createOrder($owner->id);
 
         // Status updates must use one of the states supported by the API.
         $response = $this->actingAs($admin, 'sanctum')
-            ->patchJson("/api/admin/orders/{$order->id}/status", [
+            ->patchJson("/api/seller/orders/{$order->id}/status", [
                 'status' => 'shipped',
             ]);
 
@@ -154,7 +154,7 @@ class OrderTest extends TestCase
 
         // Only administrators may change order workflow state.
         $response = $this->actingAs($user, 'sanctum')
-            ->patchJson("/api/admin/orders/{$order->id}/status", [
+            ->patchJson("/api/seller/orders/{$order->id}/status", [
                 'status' => 'completed',
             ]);
 

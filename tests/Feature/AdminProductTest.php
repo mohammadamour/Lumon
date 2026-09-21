@@ -14,12 +14,12 @@ class AdminProductTest extends TestCase
 
     public function test_admin_can_create_a_product(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = User::factory()->create(['role' => 'seller']);
         $category = Category::factory()->create();
 
         // Admin product creation should persist the supplied catalog data.
         $response = $this->actingAs($admin, 'sanctum')
-            ->postJson('/api/products', [
+            ->postJson('/api/seller/products', [
                 'category_id' => $category->id,
                 'name' => 'Red Running Shoes',
                 'description' => 'Lightweight running shoes',
@@ -47,7 +47,7 @@ class AdminProductTest extends TestCase
 
         // Ordinary customers must not access the admin product endpoint.
         $response = $this->actingAs($user, 'sanctum')
-            ->postJson('/api/products', [
+            ->postJson('/api/seller/products', [
                 'category_id' => $category->id,
                 'name' => 'Restricted Product',
                 'price' => 10,
@@ -59,11 +59,11 @@ class AdminProductTest extends TestCase
 
     public function test_admin_product_creation_validates_required_fields(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = User::factory()->create(['role' => 'seller']);
 
         // Required catalog fields must be supplied before a product is created.
         $response = $this->actingAs($admin, 'sanctum')
-            ->postJson('/api/products', []);
+            ->postJson('/api/seller/products', []);
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors([
@@ -76,12 +76,12 @@ class AdminProductTest extends TestCase
 
     public function test_admin_can_update_a_product(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
-        $product = Product::factory()->create(['name' => 'Old Name']);
+        $admin = User::factory()->create(['role' => 'seller']);
+        $product = Product::factory()->create(['name' => 'Old Name', 'seller_id' => $admin->id]);
 
         // An administrator should be able to update product catalog fields.
         $response = $this->actingAs($admin, 'sanctum')
-            ->putJson("/api/products/{$product->id}", [
+            ->putJson("/api/seller/products/{$product->id}", [
                 'name' => 'New Name',
                 'price' => 49.99,
             ]);
@@ -99,30 +99,31 @@ class AdminProductTest extends TestCase
 
     public function test_admin_can_delete_a_product(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
-        $product = Product::factory()->create();
+        $admin = User::factory()->create(['role' => 'seller']);
+        $product = Product::factory()->create(['seller_id' => $admin->id]);
 
         // Deleting a product should remove it from the catalog.
         $response = $this->actingAs($admin, 'sanctum')
-            ->deleteJson("/api/products/{$product->id}");
+            ->deleteJson("/api/seller/products/{$product->id}");
 
         $response->assertOk()
-            ->assertJsonPath('message', 'Product deleted successfully');
+            ->assertJsonPath('message', 'Product removed from your listings.');
 
-        $this->assertDatabaseMissing('products', [
+        $this->assertDatabaseHas('products', [
             'id' => $product->id,
+            'is_active' => false,
         ]);
     }
 
     public function test_product_slugs_are_unique_when_names_repeat(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = User::factory()->create(['role' => 'seller']);
         $category = Category::factory()->create();
         Product::factory()->create(['name' => 'Same Name', 'slug' => 'same-name']);
 
         // Reusing a product name should generate a distinct slug.
         $response = $this->actingAs($admin, 'sanctum')
-            ->postJson('/api/products', [
+            ->postJson('/api/seller/products', [
                 'category_id' => $category->id,
                 'name' => 'Same Name',
                 'price' => 20,

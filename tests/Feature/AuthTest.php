@@ -12,59 +12,52 @@ class AuthTest extends TestCase
 
     public function test_user_can_register(): void
     {
-        // Registration should create an account and return a bearer token.
-        $response = $this->postJson('/api/register', [
+        $response = $this->post('/register', [
             'name' => 'Jane Doe',
             'email' => 'jane@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'role' => 'buyer',
         ]);
 
-        $response->assertCreated()
-            ->assertJsonPath('message', 'User registered successfully')
-            ->assertJsonPath('user.email', 'jane@example.com')
-            ->assertJsonPath('token_type', 'Bearer')
-            ->assertJsonStructure(['access_token']);
+        $response->assertRedirect('/');
 
         $this->assertDatabaseHas('users', [
             'email' => 'jane@example.com',
         ]);
+
+        $this->assertAuthenticated();
     }
 
     public function test_registration_validates_duplicate_email_and_password_confirmation(): void
     {
-        // Existing email addresses and mismatched passwords must be rejected.
         User::factory()->create(['email' => 'jane@example.com']);
 
-        $response = $this->postJson('/api/register', [
+        $response = $this->post('/register', [
             'name' => 'Jane Doe',
             'email' => 'jane@example.com',
             'password' => 'password123',
             'password_confirmation' => 'different-password',
+            'role' => 'buyer',
         ]);
 
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['email', 'password']);
+        $response->assertSessionHasErrors(['email', 'password']);
     }
 
     public function test_user_can_login_with_valid_credentials(): void
     {
-        // A valid email and password should produce an API token.
         User::factory()->create([
             'email' => 'jane@example.com',
             'password' => 'password123',
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->post('/login', [
             'email' => 'jane@example.com',
             'password' => 'password123',
         ]);
 
-        $response->assertOk()
-            ->assertJsonPath('message', 'Logged in successfully')
-            ->assertJsonPath('user.email', 'jane@example.com')
-            ->assertJsonPath('token_type', 'Bearer')
-            ->assertJsonStructure(['access_token']);
+        $response->assertRedirect('/');
+        $this->assertAuthenticated();
     }
 
     public function test_login_rejects_invalid_credentials(): void
@@ -74,21 +67,19 @@ class AuthTest extends TestCase
             'password' => 'password123',
         ]);
 
-        // Incorrect credentials must not authenticate the user.
-        $response = $this->postJson('/api/login', [
+        $response = $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
 
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['email']);
+        $response->assertSessionHasErrors(['email']);
+        $this->assertGuest();
     }
 
     public function test_authenticated_user_can_view_their_profile(): void
     {
         $user = User::factory()->create();
 
-        // The protected profile endpoint should return the authenticated account.
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/user');
 
@@ -97,22 +88,13 @@ class AuthTest extends TestCase
             ->assertJsonPath('email', $user->email);
     }
 
-    public function test_logout_revokes_the_current_token(): void
+    public function test_logout_invalidates_session(): void
     {
         $user = User::factory()->create();
-        $newToken = $user->createToken('test-token');
-        $token = $newToken->plainTextToken;
 
-        // Logging out should revoke the token that was used for the request.
-        $response = $this->withToken($token)
-            ->postJson('/api/logout');
+        $response = $this->actingAs($user)->post('/logout');
 
-        $response->assertOk()
-            ->assertJsonPath('message', 'Logged out successfully');
-
-        // The logout endpoint should remove the token used by the request.
-        $this->assertDatabaseMissing('personal_access_tokens', [
-            'id' => $newToken->accessToken->id,
-        ]);
+        $response->assertRedirect('/');
+        $this->assertGuest();
     }
 }
