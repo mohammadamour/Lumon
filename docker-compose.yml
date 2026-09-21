@@ -38,11 +38,9 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - dbdata:/var/lib/mysql
     networks:
@@ -50,12 +48,13 @@ services:
 
   # 4. The Frontend Compiler (Vite/Node)
   node:
-    image: node:18-alpine
+    image: node:20-alpine
     container_name: lumon-node
     working_dir: /var/www
     volumes:
       - ./:/var/www
-    command: npm run dev
+      - /var/www/node_modules
+    command: sh -c "npm install && npm run dev"
     ports:
       - "5173:5173"
     networks:
