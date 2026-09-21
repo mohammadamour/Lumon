@@ -1,0 +1,57 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite3, pdo_sqlite, bcmath, soap, intl, readline, ldap, msgpack, igbinary, redis, swoole, memcached, pcov, xdebug
+        coverage: none
+
+    - name: Install Composer Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install NPM Dependencies & Build Assets
+      run: |
+        npm install
+        npm run build
+
+    - name: Prepare Environment
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+
+    - name: Create Database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
+    - name: Run Migrations
+      run: php artisan migrate --env=testing --force
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+
+    - name: Execute Tests (Pest)
+      run: vendor/bin/pest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
