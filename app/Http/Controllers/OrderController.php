@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Resources\OrderResource;
+use App\Jobs\SendOrderConfirmationMail;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +40,7 @@ class OrderController extends Controller
         $user = $request->user();
 
         // Wrap checkout operations in a database transaction
-        return DB::transaction(function () use ($user, $validated) {
+        $result = DB::transaction(function () use ($user, $validated) {
             $cart = $user->cart()->lockForUpdate()->first();
 
             if (! $cart) {
@@ -96,8 +97,21 @@ class OrderController extends Controller
             // 3. Clear the Cart
             $cart->items()->delete();
 
-            return new OrderResource($order->load('items.product'));
+            return $order->load('items.product');
         });
+
+        // 4. Dispatch the confirmation email as a background job.
+        //    This runs AFTER the transaction commits, so the order
+        //    is guaranteed to exist in the database before the
+        //    worker picks up this job.
+        if ($result instanceof Order) {
+            SendOrderConfirmationMail::dispatch($user, $result);
+
+            return new OrderResource($result);
+        }
+
+        // If we got here, the transaction returned an error response (empty cart, etc.)
+        return $result;
     }
 
 
