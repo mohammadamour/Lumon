@@ -38,14 +38,31 @@ export default function Checkout() {
     setStep(2);
   };
 
-  const placeOrder = () => {
+  const placeOrder = async () => {
     setIsProcessing(true);
-    // Simulate API call to POST /api/checkout
-    setTimeout(() => {
-      setIsProcessing(false);
-      setStep(3);
+    try {
+      const shippingAddress = `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`;
+      
+      await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-XSRF-TOKEN': decodeURIComponent(
+            document.cookie.match(/XSRF-TOKEN=([^;]*)/)?.[1] ?? ''
+          ),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ shipping_address: shippingAddress }),
+      });
+
       clearCart();
-    }, 2000);
+      setStep(3);
+    } catch (error) {
+      console.error('Checkout failed:', error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (items.length === 0 && step !== 3) {
