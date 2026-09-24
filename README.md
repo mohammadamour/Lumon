@@ -25,6 +25,7 @@ A modern, full-stack e-commerce platform built with **Laravel 13** and **React 1
 - **Wishlist** — Toggle products in/out of a personal wishlist with heart button animations
 - **Reviews & Ratings** — Read and write product reviews with 1–5 star ratings; edit or delete your own reviews
 - **Order History** — View past orders with itemized details and order status
+- **Asynchronous Processing** — Background queue workers handle order confirmation emails instantly after checkout
 
 ### 🏪 Seller Experience
 
@@ -76,6 +77,14 @@ A modern, full-stack e-commerce platform built with **Laravel 13** and **React 1
 | **Zustand**        | Lightweight state management (cart, toasts) |
 | **Lucide React**   | Icon library                                |
 | **Axios**          | HTTP client for API calls                   |
+
+### DevOps & Architecture
+
+| Technology             | Purpose                                            |
+| ---------------------- | -------------------------------------------------- |
+| **Docker & Compose**   | Containerized local development environment        |
+| **GitHub Actions**     | Automated CI/CD pipeline for running Pest tests    |
+| **Laravel Queues**     | Background job processing for emails & heavy tasks |
 
 ---
 
@@ -181,12 +190,12 @@ reviews         → id, product_id, user_id, rating, comment (unique: product_id
 
 ## 🚀 Getting Started
 
+Lumon uses **Docker** to provide a zero-configuration, containerized development environment. You do not need PHP, Node, or MySQL installed on your host machine.
+
 ### Prerequisites
 
-- **PHP** ≥ 8.3
-- **Composer** ≥ 2.x
-- **Node.js** ≥ 18.x
-- **MySQL** 8.x (or SQLite for quick setup)
+- **Docker Desktop** (or Docker Engine + Compose)
+- **Git**
 
 ### Installation
 
@@ -195,49 +204,41 @@ reviews         → id, product_id, user_id, rating, comment (unique: product_id
 git clone https://github.com/mohammadamour/Lumon.git
 cd Lumon
 
-# 2. Install PHP dependencies
-composer install
-
-# 3. Install JS dependencies
-npm install
-
-# 4. Set up environment
+# 2. Set up environment file
 cp .env.example .env
-php artisan key:generate
+
+# 3. Build and spin up the containers
+docker-compose up -d --build
 ```
 
-### Database Setup
+### Initial Setup
 
-Configure your database in `.env`:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=lumon_db
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-Then run migrations and seed:
+Once the containers are running, run these commands inside the `app` container to finish setup:
 
 ```bash
-php artisan migrate:fresh --seed
+# Install PHP dependencies
+docker-compose exec app composer install
+
+# Generate application key
+docker-compose exec app php artisan key:generate
+
+# Run migrations and seed the database with API data
+docker-compose exec app php artisan migrate:fresh --seed
 ```
 
-> The seeder fetches **real product data** (images, descriptions, prices, reviews) from the [DummyJSON API](https://dummyjson.com/). If the API is unreachable, it gracefully falls back to factory-generated placeholder data.
+### Running the Application
 
-### Running Locally
+The application is now fully running! 
 
+- **Storefront:** Visit **http://localhost:8000** in your browser.
+- **Vite (Frontend):** Running automatically in the `node` container with HMR via port 5173.
+- **Database:** Accessible on port `3307` via standard MySQL clients (username: `root`, no password).
+
+#### Starting the Queue Worker
+To process background jobs (like sending order confirmation emails), run the worker inside the app container:
 ```bash
-# Terminal 1: Start the Laravel backend
-php artisan serve
-
-# Terminal 2: Start the Vite dev server
-npm run dev
+docker-compose exec app php artisan queue:work
 ```
-
-Visit **http://localhost:8000** in your browser.
 
 ---
 
@@ -274,25 +275,3 @@ The database seeder uses a two-tier strategy:
 ## 📄 License
 
 This project is open-sourced under the [MIT License](https://opensource.org/licenses/MIT).
-
-<!--
-
-
-running it locally (temp steps):
-
-php artisan serve
-npm run dev
-turn on sql xampp
-
-for bagisto
-just turn on herd
-
-todo list:
-- [x] fixed static bestseller products in landing page
-- [x] remove electronics as a category
-- [x] make clicking on landing page cateogries lead you to products page with search for that specific category
-change the kid image in landing page to electronic
-reconfigure what needs to before deployment
-dockerize and containerzie the application to be ready for deployment
-write a thorough documentation for the application
-figure out what integration and end to end tests mean and how to implement them -->
