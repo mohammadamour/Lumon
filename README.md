@@ -182,6 +182,17 @@ Lumon/
 │       │   ├── product/        # ProductGallery, ReviewSection, QuantitySelector
 │       │   └── shop/           # FilterSidebar, SortDropdown, Pagination
 │       └── Pages/              # 11 Inertia page components
+│           ├── Home.tsx         # Landing page
+│           ├── Shop.tsx         # Product listing with filters
+│           ├── ProductDetail.tsx # Single product view
+│           ├── Cart.tsx         # Cart page
+│           ├── Checkout.tsx     # Checkout flow
+│           ├── Wishlist.tsx     # Wishlist page
+│           ├── Login.tsx        # Login page (with demo login)
+│           ├── Register.tsx     # Registration page
+│           ├── MyProducts.tsx   # Seller product dashboard
+│           ├── ProductForm.tsx  # Create/edit product form
+│           └── SellerProfile.tsx # Public seller page
 ├── routes/
 │   ├── web.php                 # Inertia page routes
 │   └── api.php                 # RESTful API routes
