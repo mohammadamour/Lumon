@@ -40,48 +40,73 @@ class ProductController extends Controller
         $cacheKey = 'products_page_' . md5(json_encode($request->all()));
 
         $products = \Illuminate\Support\Facades\Cache::tags(['products'])->remember($cacheKey, 3600, function () use ($validated) {
+            $searchTerm = $validated['search'] ?? '';
+
+            if ($searchTerm) {
+                $query = Product::search($searchTerm);
+
+                // Meilisearch filters
+                if (isset($validated['category_id'])) {
+                    $query->where('category_id', $validated['category_id']);
+                }
+                if (isset($validated['seller_id'])) {
+                    $query->where('seller_id', $validated['seller_id']);
+                }
+                if (isset($validated['min_price'])) {
+                    $query->where('price', '>=', $validated['min_price']);
+                }
+                if (isset($validated['max_price'])) {
+                    $query->where('price', '<=', $validated['max_price']);
+                }
+
+                // Hydrate with Eloquent relations and computed properties
+                $query->query(function ($builder) use ($validated) {
+                    $builder->with(['category', 'seller'])
+                        ->withAvg('reviews', 'rating')
+                        ->withCount('reviews')
+                        ->where('is_active', true);
+                        
+                    if (! empty($validated['category'])) {
+                        $builder->whereHas('category', function ($categoryQuery) use ($validated) {
+                            $categoryQuery->where('slug', $validated['category']);
+                        });
+                    }
+                });
+
+                $sortBy = $validated['sort_by'] ?? 'created_at';
+                $sortOrder = $validated['sort_order'] ?? 'desc';
+                if ($sortBy === 'price') {
+                    $query->orderBy('price', $sortOrder);
+                }
+
+                $perPage = $validated['per_page'] ?? 12;
+                return $query->paginate($perPage)->withQueryString();
+            }
+
+            // Fallback for empty search term
             $query = Product::with(['category', 'seller'])
                 ->withAvg('reviews', 'rating')
                 ->withCount('reviews')
                 ->where('is_active', true);
 
-            // Search by name or description
-            if (! empty($validated['search'])) {
-                $searchTerm = $validated['search'];
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('name', 'like', '%'.$searchTerm.'%')
-                      ->orWhere('description', 'like', '%'.$searchTerm.'%');
-                });
-            }
-
-            // Filter by category ID
             if (isset($validated['category_id'])) {
                 $query->where('category_id', $validated['category_id']);
             }
-
-            // Filter by category slug
             if (! empty($validated['category'])) {
                 $query->whereHas('category', function ($categoryQuery) use ($validated) {
                     $categoryQuery->where('slug', $validated['category']);
                 });
             }
-
-            // Filter by seller
             if (isset($validated['seller_id'])) {
                 $query->where('seller_id', $validated['seller_id']);
             }
-
-            // Filter by minimum price
             if (isset($validated['min_price'])) {
                 $query->where('price', '>=', $validated['min_price']);
             }
-
-            // Filter by maximum price
             if (isset($validated['max_price'])) {
                 $query->where('price', '<=', $validated['max_price']);
             }
 
-            // Sort products (default to latest)
             $sortBy = $validated['sort_by'] ?? 'created_at';
             $sortOrder = $validated['sort_order'] ?? 'desc';
 
@@ -91,7 +116,6 @@ class ProductController extends Controller
                 $query->orderBy($sortBy, $sortOrder === 'asc' ? 'asc' : 'desc');
             }
 
-            // Paginate results (12 per page by default)
             $perPage = $validated['per_page'] ?? 12;
             return $query->paginate($perPage)->withQueryString();
         });

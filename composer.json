@@ -7,13 +7,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "http-interop/http-factory-guzzle": "*",
+        "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^3.3",
         "laravel/framework": "^13.17",
         "laravel/sanctum": "^4.0",
-        "laravel/scout": "*",
+        "laravel/scout": "^11.8",
         "laravel/tinker": "^3.0",
-        "meilisearch/meilisearch-php": "*"
+        "meilisearch/meilisearch-php": "^1.17"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
