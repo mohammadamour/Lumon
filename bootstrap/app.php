@@ -35,7 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->reportable(function (\Throwable $e) {
             if (app()->bound('sentry')) {
                 // Attach the authenticated user so Sentry shows WHO was affected
-                $user = auth()->user();
+                /** @var \App\Models\User|null $user */
+                $user = request()->user();
                 if ($user) {
                     \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($user): void {
                         $scope->setUser([
