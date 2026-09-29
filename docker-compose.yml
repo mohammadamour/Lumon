@@ -70,10 +70,24 @@ services:
     networks:
       - lumon
 
+  # 6. Redis (Cache, Queues, Sessions)
+  redis:
+    image: redis:alpine
+    container_name: lumon-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - lumon
+    volumes:
+      - redisdata:/data
+
 networks:
   lumon:
     driver: bridge
 
 volumes:
   dbdata:
+    driver: local
+  redisdata:
     driver: local

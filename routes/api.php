@@ -39,7 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Order Endpoints
     Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/checkout', [OrderController::class, 'store']);
+    Route::post('/checkout', [OrderController::class, 'store'])->middleware('throttle:checkout');
     Route::get('/orders/{order}', [OrderController::class, 'show']);
 
     // Review Endpoints
