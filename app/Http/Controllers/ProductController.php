@@ -40,44 +40,88 @@ class ProductController extends Controller
         $searchTerm = $validated['search'] ?? '';
 
         if ($searchTerm) {
-            $query = Product::search($searchTerm);
+            try {
+                $query = Product::search($searchTerm);
 
-            // Meilisearch filters
-            if (isset($validated['category_id'])) {
-                $query->where('category_id', $validated['category_id']);
-            }
-            if (isset($validated['seller_id'])) {
-                $query->where('seller_id', $validated['seller_id']);
-            }
-            if (isset($validated['min_price'])) {
-                $query->where('price', '>=', $validated['min_price']);
-            }
-            if (isset($validated['max_price'])) {
-                $query->where('price', '<=', $validated['max_price']);
-            }
+                // Meilisearch filters
+                if (isset($validated['category_id'])) {
+                    $query->where('category_id', $validated['category_id']);
+                }
+                if (isset($validated['seller_id'])) {
+                    $query->where('seller_id', $validated['seller_id']);
+                }
+                if (isset($validated['min_price'])) {
+                    $query->where('price', '>=', $validated['min_price']);
+                }
+                if (isset($validated['max_price'])) {
+                    $query->where('price', '<=', $validated['max_price']);
+                }
 
-            // Hydrate with Eloquent relations and computed properties
-            $query->query(function ($builder) use ($validated) {
-                $builder->with(['category', 'seller'])
+                // Hydrate with Eloquent relations and computed properties
+                $query->query(function ($builder) use ($validated) {
+                    $builder->with(['category', 'seller'])
+                        ->withAvg('reviews', 'rating')
+                        ->withCount('reviews')
+                        ->where('is_active', true);
+
+                    if (! empty($validated['category'])) {
+                        $builder->whereHas('category', function ($categoryQuery) use ($validated) {
+                            $categoryQuery->where('slug', $validated['category']);
+                        });
+                    }
+                });
+
+                $sortBy = $validated['sort_by'] ?? 'created_at';
+                $sortOrder = $validated['sort_order'] ?? 'desc';
+                if ($sortBy === 'price') {
+                    $query->orderBy('price', $sortOrder);
+                }
+
+                $perPage = $validated['per_page'] ?? 12;
+                $products = $query->paginate($perPage)->withQueryString();
+            } catch (\Exception $e) {
+                // Fallback to database LIKE search if Meilisearch is unavailable
+                report($e);
+                
+                $query = Product::with(['category', 'seller'])
                     ->withAvg('reviews', 'rating')
                     ->withCount('reviews')
-                    ->where('is_active', true);
+                    ->where('is_active', true)
+                    ->where(function ($q) use ($searchTerm) {
+                        $q->where('name', 'LIKE', "%{$searchTerm}%")
+                          ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+                    });
 
+                if (isset($validated['category_id'])) {
+                    $query->where('category_id', $validated['category_id']);
+                }
                 if (! empty($validated['category'])) {
-                    $builder->whereHas('category', function ($categoryQuery) use ($validated) {
+                    $query->whereHas('category', function ($categoryQuery) use ($validated) {
                         $categoryQuery->where('slug', $validated['category']);
                     });
                 }
-            });
+                if (isset($validated['seller_id'])) {
+                    $query->where('seller_id', $validated['seller_id']);
+                }
+                if (isset($validated['min_price'])) {
+                    $query->where('price', '>=', $validated['min_price']);
+                }
+                if (isset($validated['max_price'])) {
+                    $query->where('price', '<=', $validated['max_price']);
+                }
 
-            $sortBy = $validated['sort_by'] ?? 'created_at';
-            $sortOrder = $validated['sort_order'] ?? 'desc';
-            if ($sortBy === 'price') {
-                $query->orderBy('price', $sortOrder);
+                $sortBy = $validated['sort_by'] ?? 'created_at';
+                $sortOrder = $validated['sort_order'] ?? 'desc';
+
+                if ($sortBy === 'rating') {
+                    $query->orderBy('reviews_avg_rating', $sortOrder === 'asc' ? 'asc' : 'desc');
+                } elseif (in_array($sortBy, ['price', 'created_at', 'name'])) {
+                    $query->orderBy($sortBy, $sortOrder === 'asc' ? 'asc' : 'desc');
+                }
+
+                $perPage = $validated['per_page'] ?? 12;
+                $products = $query->paginate($perPage)->withQueryString();
             }
-
-            $perPage = $validated['per_page'] ?? 12;
-            $products = $query->paginate($perPage)->withQueryString();
         } else {
             // No search term — use standard Eloquent query
             $query = Product::with(['category', 'seller'])

@@ -67,7 +67,9 @@ class OrderController extends Controller
                 $products->put($item->id, $product);
 
                 if ($product->stock < $item->quantity) {
-                    throw new \Exception("Product {$product->name} does not have enough stock.");
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'stock' => "Product \"{$product->name}\" does not have enough stock. Only {$product->stock} available."
+                    ]);
                 }
 
                 $totalAmount += $product->price * $item->quantity;
