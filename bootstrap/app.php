@@ -30,4 +30,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Send all exceptions to Sentry for real-time error tracking
+        $exceptions->reportable(function (\Throwable $e) {
+            if (app()->bound('sentry')) {
+                // Attach the authenticated user so Sentry shows WHO was affected
+                $user = auth()->user();
+                if ($user) {
+                    \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($user): void {
+                        $scope->setUser([
+                            'id' => $user->id,
+                            'email' => $user->email,
+                            'username' => $user->name,
+                        ]);
+                    });
+                }
+
+                \Sentry\captureException($e);
+            }
+        });
     })->create();
