@@ -37,53 +37,49 @@ class ProductController extends Controller
             'per_page' => ['nullable', 'integer', 'min:1', 'max:48'],
         ]);
 
-        $cacheKey = 'products_page_' . md5(json_encode($request->all()));
+        $searchTerm = $validated['search'] ?? '';
 
-        $products = \Illuminate\Support\Facades\Cache::tags(['products'])->remember($cacheKey, 3600, function () use ($validated) {
-            $searchTerm = $validated['search'] ?? '';
+        if ($searchTerm) {
+            $query = Product::search($searchTerm);
 
-            if ($searchTerm) {
-                $query = Product::search($searchTerm);
-
-                // Meilisearch filters
-                if (isset($validated['category_id'])) {
-                    $query->where('category_id', $validated['category_id']);
-                }
-                if (isset($validated['seller_id'])) {
-                    $query->where('seller_id', $validated['seller_id']);
-                }
-                if (isset($validated['min_price'])) {
-                    $query->where('price', '>=', $validated['min_price']);
-                }
-                if (isset($validated['max_price'])) {
-                    $query->where('price', '<=', $validated['max_price']);
-                }
-
-                // Hydrate with Eloquent relations and computed properties
-                $query->query(function ($builder) use ($validated) {
-                    $builder->with(['category', 'seller'])
-                        ->withAvg('reviews', 'rating')
-                        ->withCount('reviews')
-                        ->where('is_active', true);
-                        
-                    if (! empty($validated['category'])) {
-                        $builder->whereHas('category', function ($categoryQuery) use ($validated) {
-                            $categoryQuery->where('slug', $validated['category']);
-                        });
-                    }
-                });
-
-                $sortBy = $validated['sort_by'] ?? 'created_at';
-                $sortOrder = $validated['sort_order'] ?? 'desc';
-                if ($sortBy === 'price') {
-                    $query->orderBy('price', $sortOrder);
-                }
-
-                $perPage = $validated['per_page'] ?? 12;
-                return $query->paginate($perPage)->withQueryString();
+            // Meilisearch filters
+            if (isset($validated['category_id'])) {
+                $query->where('category_id', $validated['category_id']);
+            }
+            if (isset($validated['seller_id'])) {
+                $query->where('seller_id', $validated['seller_id']);
+            }
+            if (isset($validated['min_price'])) {
+                $query->where('price', '>=', $validated['min_price']);
+            }
+            if (isset($validated['max_price'])) {
+                $query->where('price', '<=', $validated['max_price']);
             }
 
-            // Fallback for empty search term
+            // Hydrate with Eloquent relations and computed properties
+            $query->query(function ($builder) use ($validated) {
+                $builder->with(['category', 'seller'])
+                    ->withAvg('reviews', 'rating')
+                    ->withCount('reviews')
+                    ->where('is_active', true);
+
+                if (! empty($validated['category'])) {
+                    $builder->whereHas('category', function ($categoryQuery) use ($validated) {
+                        $categoryQuery->where('slug', $validated['category']);
+                    });
+                }
+            });
+
+            $sortBy = $validated['sort_by'] ?? 'created_at';
+            $sortOrder = $validated['sort_order'] ?? 'desc';
+            if ($sortBy === 'price') {
+                $query->orderBy('price', $sortOrder);
+            }
+
+            $perPage = $validated['per_page'] ?? 12;
+            $products = $query->paginate($perPage)->withQueryString();
+        } else {
+            // No search term — use standard Eloquent query
             $query = Product::with(['category', 'seller'])
                 ->withAvg('reviews', 'rating')
                 ->withCount('reviews')
@@ -117,8 +113,8 @@ class ProductController extends Controller
             }
 
             $perPage = $validated['per_page'] ?? 12;
-            return $query->paginate($perPage)->withQueryString();
-        });
+            $products = $query->paginate($perPage)->withQueryString();
+        }
 
         return ProductResource::collection($products);
     }
