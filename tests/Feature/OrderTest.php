@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -108,14 +110,23 @@ class OrderTest extends TestCase
 
     public function test_admin_can_update_order_status(): void
     {
-        $admin = User::factory()->create(['role' => 'seller']);
-        $owner = User::factory()->create();
-        $order = $this->createOrder($owner->id, [
-            'status' => 'pending',
+        $seller = User::factory()->create(['role' => 'seller']);
+        $buyer = User::factory()->create();
+
+        // Create a product belonging to this seller
+        $product = Product::factory()->create(['seller_id' => $seller->id]);
+
+        // Create an order with an item referencing the seller's product
+        $order = $this->createOrder($buyer->id, ['status' => 'pending']);
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'price' => $product->price,
         ]);
 
         // Admin status changes should be returned and persisted on the order.
-        $response = $this->actingAs($admin, 'sanctum')
+        $response = $this->actingAs($seller, 'sanctum')
             ->patchJson("/api/seller/orders/{$order->id}/status", [
                 'status' => 'processing',
             ]);
@@ -132,12 +143,23 @@ class OrderTest extends TestCase
 
     public function test_order_status_must_be_valid(): void
     {
-        $admin = User::factory()->create(['role' => 'seller']);
-        $owner = User::factory()->create();
-        $order = $this->createOrder($owner->id);
+        $seller = User::factory()->create(['role' => 'seller']);
+        $buyer = User::factory()->create();
+
+        // Create a product belonging to this seller
+        $product = Product::factory()->create(['seller_id' => $seller->id]);
+
+        // Create an order with an item referencing the seller's product
+        $order = $this->createOrder($buyer->id);
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'price' => $product->price,
+        ]);
 
         // Status updates must use one of the states supported by the API.
-        $response = $this->actingAs($admin, 'sanctum')
+        $response = $this->actingAs($seller, 'sanctum')
             ->patchJson("/api/seller/orders/{$order->id}/status", [
                 'status' => 'shipped',
             ]);
@@ -171,3 +193,4 @@ class OrderTest extends TestCase
         ], $attributes));
     }
 }
+

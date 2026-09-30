@@ -29,9 +29,9 @@ it('rolls back the checkout transaction if a product runs out of stock midway', 
             'shipping_address' => '123 Main Street',
         ]);
 
-    // 4. Assert: The request fails with an exception (500)
-    $response->assertStatus(500);
-    $response->assertSee('does not have enough stock');
+    // 4. Assert: The request fails with a validation error (422)
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['stock']);
 
     // 5. Assert: Transaction rolled back (no order created, cart still exists)
     $this->assertDatabaseCount('orders', 0);

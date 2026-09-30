@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
@@ -172,83 +171,5 @@ class ProductController extends Controller
 
         return new ProductResource($product->load(['category', 'seller']));
     }
-
-    /**
-     * Create a new product (seller only).
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'is_active' => 'boolean',
-            'image_url' => 'nullable|url|max:2048',
-        ]);
-
-        $validated['seller_id'] = $request->user()->id;
-        $validated['slug'] = $this->uniqueSlug($validated['name']);
-
-        $product = Product::create($validated);
-
-        return new ProductResource($product->load(['category', 'seller']));
-    }
-
-    /**
-     * Update an existing product (seller only, own products).
-     */
-    public function update(Request $request, Product $product)
-    {
-        $validated = $request->validate([
-            'category_id' => 'sometimes|exists:categories,id',
-            'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'sometimes|numeric|min:0',
-            'stock' => 'sometimes|integer|min:0',
-            'is_active' => 'boolean',
-            'image_url' => 'nullable|url|max:2048',
-        ]);
-
-        if (isset($validated['name'])) {
-            $validated['slug'] = $this->uniqueSlug($validated['name'], $product);
-        }
-
-        $product->update($validated);
-
-        return new ProductResource($product->load(['category', 'seller']));
-    }
-
-    /**
-     * Delete a product (seller only).
-     */
-    public function destroy(Product $product)
-    {
-        $product->delete();
-
-        return response()->json([
-            'message' => 'Product deleted successfully',
-        ]);
-    }
-
-    /**
-     * Generate a unique slug for a product.
-     */
-    private function uniqueSlug(string $name, ?Product $ignoreProduct = null): string
-    {
-        $baseSlug = Str::slug($name) ?: Str::random(8);
-        $slug = $baseSlug;
-        $suffix = 2;
-
-        while (
-            Product::where('slug', $slug)
-                ->when($ignoreProduct, fn ($query) => $query->whereKeyNot($ignoreProduct->getKey()))
-                ->exists()
-        ) {
-            $slug = $baseSlug.'-'.$suffix++;
-        }
-
-        return $slug;
-    }
 }
+

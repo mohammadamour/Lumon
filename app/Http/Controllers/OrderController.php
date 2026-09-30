@@ -117,27 +117,34 @@ class OrderController extends Controller
     }
 
 
-
-
     // Admin: View all orders across all users
-            public function adminIndex(Request $request)
-            {
-            $orders = Order::with(['user', 'items.product'])->latest()->paginate(15);
+    public function adminIndex(Request $request)
+    {
+        $orders = Order::with(['user', 'items.product'])->latest()->paginate(15);
 
-            return OrderResource::collection($orders);
-            }
+        return OrderResource::collection($orders);
+    }
 
-            // Admin: Update order status
-            public function updateStatus(Request $request, Order $order)
-            {
-                $validated = $request->validate([
-                    'status' => ['required', Rule::in(['pending', 'processing', 'completed', 'cancelled'])],
-            ]);
+    // Admin/Seller: Update order status
+    public function updateStatus(Request $request, Order $order)
+    {
+        // Verify this order contains at least one of the seller's products
+        $hasSellerProduct = $order->items()
+            ->whereHas('product', fn ($q) => $q->where('seller_id', $request->user()->id))
+            ->exists();
 
-            $order->update([
+        if (! $hasSellerProduct) {
+            return response()->json(['message' => 'You can only manage orders for your products.'], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['pending', 'processing', 'completed', 'cancelled'])],
+        ]);
+
+        $order->update([
             'status' => $validated['status'],
-            ]);
+        ]);
 
         return new OrderResource($order->load('items.product'));
-}
+    }
 }
