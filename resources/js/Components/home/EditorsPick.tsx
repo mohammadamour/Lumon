@@ -27,7 +27,7 @@ const CATEGORIES = [
   {
     id: 'electronics',
     label: 'ELECTRONICS',
-    image: '/category-kid.webp',
+    image: '/category-electronics.jpg',
     href: '/products?category=electronics',
     span: 'small',
   },

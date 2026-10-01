@@ -6,7 +6,7 @@ const CATEGORY_IMAGES = [
   '/category-men.png',
   '/category-women.png',
   '/category-accessory.png',
-  '/category-kid.webp',
+  '/category-electronics.jpg',
 ];
 
 const PLACEHOLDER_PRODUCTS = [
