@@ -100,7 +100,10 @@ export default function ProductForm() {
       );
       router.visit('/my-products');
     } catch (err: any) {
-      if (err.response?.status === 422) {
+      if (err.response?.status === 413) {
+        setErrors({ image: ['Image file larger than allowed, please choose a lighter image.'] });
+        useToastStore.getState().addToast('Image is too large.', 'error');
+      } else if (err.response?.status === 422) {
         const validationErrors = err.response.data.errors || {};
         
         // Dump the entire raw response data so we can see what's actually coming back
@@ -127,6 +130,19 @@ export default function ProductForm() {
         ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
         : 'border-gray-200 focus:border-primary focus:ring-primary/20'
     }`;
+
+  const getCategoryFallbackImage = () => {
+    const category = categories.find(c => c.id === Number(categoryId));
+    if (!category) return '/hero-bg.png';
+    
+    const name = category.name.toLowerCase();
+    if (name.includes('electronic')) return '/category-electronics.jpg';
+    if (name.includes('women')) return '/category-women.png';
+    if (name.includes('men')) return '/category-men.png';
+    if (name.includes('jewel') || name.includes('accessor')) return '/category-accessory.png';
+    
+    return '/hero-bg.png';
+  };
 
   return (
     <Layout>
@@ -164,8 +180,13 @@ export default function ProductForm() {
                 Product Image
               </label>
               {imagePreview ? (
-                <div className="relative w-48 h-48 rounded-2xl overflow-hidden border border-gray-200 group">
-                  <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                <div className="relative w-48 h-48 rounded-2xl overflow-hidden border border-gray-200 group bg-gray-50">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="h-full w-full object-cover"
+                    onError={(e) => { e.currentTarget.src = getCategoryFallbackImage(); }}
+                  />
                   <button
                     type="button"
                     onClick={removeImage}
