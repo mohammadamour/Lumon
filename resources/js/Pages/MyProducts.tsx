@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Layout from '../Components/layout/Layout';
 import axios from '../lib/axios';
+import { useToastStore } from '../store/useToastStore';
 import type { Product, PageProps, Pagination } from '@/types';
 
 export default function MyProducts() {
@@ -41,8 +42,14 @@ export default function MyProducts() {
     try {
       await axios.delete(`/api/seller/products/${product.id}`);
       setProducts(products.filter(p => p.id !== product.id));
-    } catch (err) {
+      useToastStore.getState().addToast('Product fully deleted.', 'success');
+    } catch (err: any) {
       console.error('Failed to delete product', err);
+      if (err.response?.status === 422) {
+        useToastStore.getState().addToast(err.response.data.message || 'Cannot fully delete product because it has existing orders.', 'error');
+      } else {
+        useToastStore.getState().addToast('Failed to delete product. Please try again.', 'error');
+      }
     } finally {
       setDeletingId(null);
     }

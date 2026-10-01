@@ -97,10 +97,6 @@ class SellerProductController extends Controller
         return new ProductResource($product->load(['category', 'seller']));
     }
 
-    /**
-     * Soft-delete a product (set is_active = false).
-     * We preserve order history by not hard-deleting.
-     */
     public function destroy(Request $request, Product $product)
     {
         if ($product->seller_id !== $request->user()->id) {
@@ -109,11 +105,20 @@ class SellerProductController extends Controller
             ], 403);
         }
 
-        $product->update(['is_active' => false]);
-
-        return response()->json([
-            'message' => 'Product removed from your listings.',
-        ]);
+        try {
+            $product->delete();
+            return response()->json([
+                'message' => 'Product fully deleted.',
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // 23000 is the SQLSTATE for integrity constraint violation
+            if ($e->getCode() == 23000) {
+                return response()->json([
+                    'message' => 'Cannot fully delete this product because it has been ordered by customers. Please edit it and mark it as inactive instead.',
+                ], 422);
+            }
+            throw $e;
+        }
     }
 
     /**
