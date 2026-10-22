@@ -15,13 +15,17 @@ foreach ($dirs as $dir) {
     }
 }
 
-// 2. Ensure HTTPS is detected behind Vercel reverse proxy
+// 2. Fix SCRIPT_NAME and SCRIPT_FILENAME so Laravel knows base URL is root /
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
+
+// 3. Ensure HTTPS is detected behind Vercel reverse proxy
 if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
     $_SERVER['HTTPS'] = 'on';
     $_SERVER['SERVER_PORT'] = 443;
 }
 
-// 3. Prepare pre-seeded SQLite database in /tmp if using sqlite
+// 4. Prepare pre-seeded SQLite database in /tmp if using sqlite
 $sqliteTarget = '/tmp/database.sqlite';
 $sqliteSource = __DIR__ . '/../database/database.sqlite';
 if (!file_exists($sqliteTarget) && file_exists($sqliteSource)) {

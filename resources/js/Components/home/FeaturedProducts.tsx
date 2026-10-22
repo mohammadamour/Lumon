@@ -13,9 +13,12 @@ export default function FeaturedProducts() {
     setLoading(true);
     axios.get('/api/products', { params: { per_page: 8 } })
       .then(res => {
-        setProducts(res.data.data);
+        setProducts(Array.isArray(res.data?.data) ? res.data.data : []);
       })
-      .catch(err => console.error("Failed to fetch featured products:", err))
+      .catch(err => {
+        console.error("Failed to fetch featured products:", err);
+        setProducts([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -38,7 +41,7 @@ export default function FeaturedProducts() {
             Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))
-          ) : products.length > 0 ? (
+          ) : (products?.length ?? 0) > 0 ? (
             products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))
