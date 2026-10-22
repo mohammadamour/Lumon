@@ -1,0 +1,11 @@
+/vendor
+/node_modules
+/frontend
+.git
+.env
+.env.*
+tests
+docker
+Dockerfile*
+docker-compose.yml
+scratch
