@@ -39,49 +39,55 @@ class ProductController extends Controller
         $searchTerm = $validated['search'] ?? '';
 
         if ($searchTerm) {
-            try {
-                $query = Product::search($searchTerm);
+            $useMeilisearch = config('scout.driver') === 'meilisearch' && !empty(config('scout.meilisearch.host'));
 
-                // Meilisearch filters
-                if (isset($validated['category_id'])) {
-                    $query->where('category_id', $validated['category_id']);
-                }
-                if (isset($validated['seller_id'])) {
-                    $query->where('seller_id', $validated['seller_id']);
-                }
-                if (isset($validated['min_price'])) {
-                    $query->where('price', '>=', $validated['min_price']);
-                }
-                if (isset($validated['max_price'])) {
-                    $query->where('price', '<=', $validated['max_price']);
-                }
+            if ($useMeilisearch) {
+                try {
+                    $query = Product::search($searchTerm);
 
-                // Hydrate with Eloquent relations and computed properties
-                $query->query(function ($builder) use ($validated) {
-                    $builder->with(['category', 'seller'])
-                        ->withAvg('reviews', 'rating')
-                        ->withCount('reviews')
-                        ->where('is_active', true);
-
-                    if (! empty($validated['category'])) {
-                        $builder->whereHas('category', function ($categoryQuery) use ($validated) {
-                            $categoryQuery->where('slug', $validated['category']);
-                        });
+                    // Meilisearch filters
+                    if (isset($validated['category_id'])) {
+                        $query->where('category_id', $validated['category_id']);
                     }
-                });
+                    if (isset($validated['seller_id'])) {
+                        $query->where('seller_id', $validated['seller_id']);
+                    }
+                    if (isset($validated['min_price'])) {
+                        $query->where('price', '>=', $validated['min_price']);
+                    }
+                    if (isset($validated['max_price'])) {
+                        $query->where('price', '<=', $validated['max_price']);
+                    }
 
-                $sortBy = $validated['sort_by'] ?? 'created_at';
-                $sortOrder = $validated['sort_order'] ?? 'desc';
-                if ($sortBy === 'price') {
-                    $query->orderBy('price', $sortOrder);
+                    // Hydrate with Eloquent relations and computed properties
+                    $query->query(function ($builder) use ($validated) {
+                        $builder->with(['category', 'seller'])
+                            ->withAvg('reviews', 'rating')
+                            ->withCount('reviews')
+                            ->where('is_active', true);
+
+                        if (! empty($validated['category'])) {
+                            $builder->whereHas('category', function ($categoryQuery) use ($validated) {
+                                $categoryQuery->where('slug', $validated['category']);
+                            });
+                        }
+                    });
+
+                    $sortBy = $validated['sort_by'] ?? 'created_at';
+                    $sortOrder = $validated['sort_order'] ?? 'desc';
+                    if ($sortBy === 'price') {
+                        $query->orderBy('price', $sortOrder);
+                    }
+
+                    $perPage = $validated['per_page'] ?? 12;
+                    $products = $query->paginate($perPage)->withQueryString();
+                } catch (\Throwable $e) {
+                    $useMeilisearch = false;
                 }
+            }
 
-                $perPage = $validated['per_page'] ?? 12;
-                $products = $query->paginate($perPage)->withQueryString();
-            } catch (\Exception $e) {
-                // Fallback to database LIKE search if Meilisearch is unavailable
-                report($e);
-                
+            if (! $useMeilisearch) {
+                // Database LIKE search (active on serverless/SQLite/MySQL when Meilisearch is not hosted)
                 $query = Product::with(['category', 'seller'])
                     ->withAvg('reviews', 'rating')
                     ->withCount('reviews')

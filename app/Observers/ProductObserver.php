@@ -32,10 +32,18 @@ class ProductObserver
     }
     
     /**
-     * Clear the products cache tags.
+     * Clear the products cache tags safely without throwing on unsupported drivers.
      */
     private function clearProductCache(): void
     {
-        Cache::tags(['products'])->flush();
+        try {
+            if (Cache::supportsTags()) {
+                Cache::tags(['products'])->flush();
+            } else {
+                Cache::flush();
+            }
+        } catch (\Throwable $e) {
+            // Safe ignore if cache tag is unsupported in current environment
+        }
     }
 }

@@ -41,10 +41,24 @@ class SellerProductController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Handle image upload
+        // Handle image upload with safe fallback for serverless
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image_url'] = '/storage/'.$path;
+            try {
+                $file = $request->file('image');
+                $mime = $file->getMimeType();
+                $base64 = base64_encode(file_get_contents($file->getRealPath()));
+                $validated['image_url'] = "data:{$mime};base64,{$base64}";
+            } catch (\Throwable $e) {
+                $validated['image_url'] = '/category-accessory.png';
+            }
+        } elseif (empty($validated['image_url'])) {
+            $catMap = [
+                1 => '/category-men.png',
+                2 => '/category-women.png',
+                3 => '/category-accessory.png',
+                4 => '/category-electronics.jpg',
+            ];
+            $validated['image_url'] = $catMap[$validated['category_id'] ?? 1] ?? '/category-accessory.png';
         }
 
         // Remove the 'image' key (it's the file, not a DB column)
@@ -53,7 +67,9 @@ class SellerProductController extends Controller
         $validated['seller_id'] = $request->user()->id;
         $validated['slug'] = $this->uniqueSlug($validated['name']);
 
-        $product = Product::create($validated);
+        $product = Product::withoutSyncingToSearch(function () use ($validated) {
+            return Product::create($validated);
+        });
 
         return new ProductResource($product->load(['category', 'seller']));
     }
@@ -80,10 +96,16 @@ class SellerProductController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Handle image upload
+        // Handle image upload with safe fallback for serverless
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image_url'] = '/storage/'.$path;
+            try {
+                $file = $request->file('image');
+                $mime = $file->getMimeType();
+                $base64 = base64_encode(file_get_contents($file->getRealPath()));
+                $validated['image_url'] = "data:{$mime};base64,{$base64}";
+            } catch (\Throwable $e) {
+                // Keep existing image if read fails
+            }
         }
 
         unset($validated['image']);
@@ -92,7 +114,9 @@ class SellerProductController extends Controller
             $validated['slug'] = $this->uniqueSlug($validated['name'], $product);
         }
 
-        $product->update($validated);
+        Product::withoutSyncingToSearch(function () use ($product, $validated) {
+            $product->update($validated);
+        });
 
         return new ProductResource($product->load(['category', 'seller']));
     }
