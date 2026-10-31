@@ -62,5 +62,18 @@ if (!getenv('SCOUT_DRIVER')) {
     putenv('SCOUT_DRIVER=collection');
 }
 
+// Ensure Sanctum knows the Vercel domain is a stateful first-party SPA
+if (!getenv('SANCTUM_STATEFUL_DOMAINS')) {
+    putenv('SANCTUM_STATEFUL_DOMAINS=lumon-rho.vercel.app');
+}
+
+if (!getenv('APP_URL')) {
+    putenv('APP_URL=https://lumon-rho.vercel.app');
+}
+
+if (!getenv('SESSION_SECURE_COOKIE')) {
+    putenv('SESSION_SECURE_COOKIE=true');
+}
+
 // 4. Forward execution to Laravel's public entrypoint
 require __DIR__ . '/../public/index.php';

@@ -37,10 +37,13 @@
   "env": {
     "APP_ENV": "production",
     "APP_DEBUG": "false",
+    "APP_URL": "https://lumon-rho.vercel.app",
     "APP_STORAGE": "/tmp/storage",
     "CACHE_STORE": "array",
     "LOG_CHANNEL": "stderr",
     "SESSION_DRIVER": "cookie",
+    "SESSION_SECURE_COOKIE": "true",
+    "SANCTUM_STATEFUL_DOMAINS": "lumon-rho.vercel.app",
     "SCOUT_DRIVER": "collection"
   }
 }
